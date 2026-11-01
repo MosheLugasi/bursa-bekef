@@ -603,7 +603,10 @@ def main() -> int:
     items = [it for it in all_items.values() if (it.get("time") or "") >= cutoff[:10]]
     items.sort(key=lambda it: it.get("time") or "", reverse=True)
     items = items[:400]
-    translate_news(items, he_cache)
+    try:
+        translate_news(items, he_cache)
+    except Exception as e:  # noqa: BLE001 – תרגום הוא תוספת; לעולם לא מפיל את עדכון הנתונים
+        log(f"  ! תרגום החדשות נכשל: {e}")
     for it in items:
         if it["id"] in he_cache:
             it["he"] = he_cache[it["id"]]

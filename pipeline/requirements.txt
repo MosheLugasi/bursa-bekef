@@ -1,4 +1,4 @@
 yfinance>=0.2.54
 pandas>=2.0
 requests>=2.31
-anthropic>=0.70
+anthropic>=2.0
