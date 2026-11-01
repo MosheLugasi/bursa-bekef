@@ -1,7 +1,7 @@
 {
   "name": "bursa-bekef",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "בורסה בכיף – משחק מסחר בבורסה לילדים ולמתחילים",
   "type": "module",
   "scripts": {
