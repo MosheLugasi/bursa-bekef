@@ -1,6 +1,8 @@
 name: בדיקת מקורות נתונים
 
 on:
+  push:
+    branches: ['diag/**']
   workflow_dispatch:
     inputs:
       symbols:
@@ -25,4 +27,4 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/requirements.txt
       - run: pip install -r pipeline/requirements.txt
-      - run: python pipeline/diagnose.py --symbols "${{ inputs.symbols }}" --news "${{ inputs.news }}" --fred "${{ inputs.fred }}"
+      - run: python pipeline/diagnose.py --symbols "${{ inputs.symbols || 'DELG.TA,DELT.TA,AAPL' }}" --news "${{ inputs.news || 'AAPL,TEVA.TA' }}" --fred "${{ inputs.fred || 'IRLTLT01ILM156N,IR3TIB01ILM156N' }}"
