@@ -1,0 +1,12 @@
+node_modules
+dist
+dev-dist
+.DS_Store
+*.log
+.env
+.env.*
+__pycache__/
+.venv/
+# נתוני שוק נוצרים ב-GitHub Actions (או נתוני פיתוח סינתטיים מקומית)
+public/data/
+agent-briefs/

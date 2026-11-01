@@ -1,0 +1,91 @@
+name: עדכון נתוני שוק ופרסום האתר
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # כל יום חול ב-22:40 UTC – אחרי סגירת המסחר בת״א ובוול סטריט
+    - cron: '40 22 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: טעינת נתונים מהריצה הקודמת (ענף data)
+        uses: actions/checkout@v4
+        with:
+          ref: data
+          path: data-cache
+        continue-on-error: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+
+      - name: התקנת ספריות Python
+        run: pip install -r pipeline/requirements.txt
+
+      - name: איסוף נתוני שוק אמיתיים (Yahoo Finance + FRED)
+        env:
+          # לא חובה: אם מוגדר סוד ANTHROPIC_API_KEY – החדשות מתורגמות לעברית עם הסבר לילדים
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python pipeline/fetch_data.py --out public/data --cache data-cache
+
+      - name: שמירת הנתונים בענף data (גיבוי לריצה הבאה)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rm -rf /tmp/databranch && mkdir -p /tmp/databranch
+          cp -r public/data/. /tmp/databranch/
+          cd /tmp/databranch
+          git init -q -b data
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "נתוני שוק $(date -u +%Y-%m-%d)"
+          git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" data
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - name: בדיקות
+        run: npm test
+      - name: בניית האתר
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+          # לא חובה: חיבור קבוע לסנכרון ענן (Settings → Secrets and variables → Actions → Variables)
+          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

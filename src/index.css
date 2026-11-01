@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Rubik Variable", "Rubik", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #e0e7ff;
+  --color-brand-200: #c7d2fe;
+  --color-brand-500: #6366f1;
+  --color-brand-600: #4f46e5;
+  --color-brand-700: #4338ca;
+  --color-up: #0a7a0a;      /* טקסט רווח (כהה מספיק לניגודיות) */
+  --color-up-bg: #e7f7e7;
+  --color-down: #c22f2f;    /* טקסט הפסד */
+  --color-down-bg: #fdecec;
+  --color-s1: #2a78d6;      /* סדרה 1 – כחול */
+  --color-s2: #eb6834;      /* סדרה 2 – כתום */
+  --color-s3: #1baf7a;      /* סדרה 3 – טורקיז */
+  --color-s4: #eda100;
+  --color-s5: #e87ba4;
+  --color-s6: #008300;
+  --color-s7: #6250d6;
+  --color-s8: #e34948;
+}
+
+html, body, #root { min-height: 100%; }
+html, body { overflow-x: clip; }
+body {
+  background: linear-gradient(180deg, #f5f3ff 0%, #f8fafc 40%);
+  color: #0f172a;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+.num { font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; display: inline-block; }
+@utility card { @apply bg-white rounded-2xl shadow-sm border border-slate-100; }
+@utility btn { @apply inline-flex items-center justify-center gap-1.5 rounded-xl px-4 py-2.5 font-semibold transition active:scale-[0.97] disabled:opacity-40 disabled:active:scale-100 select-none; }
+@utility btn-primary { @apply btn bg-brand-600 text-white shadow-sm hover:bg-brand-700; }
+@utility btn-soft { @apply btn bg-brand-50 text-brand-700 hover:bg-brand-100; }
+@utility btn-ghost { @apply btn bg-transparent text-slate-600 hover:bg-slate-100; }
+@utility btn-buy { @apply btn bg-emerald-600 text-white hover:bg-emerald-700; }
+@utility btn-sell { @apply btn bg-rose-600 text-white hover:bg-rose-700; }
+@utility chip { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-sm font-medium border border-slate-200 bg-white text-slate-700 whitespace-nowrap; }
+@utility chip-on { @apply bg-brand-600 border-brand-600 text-white; }
+@utility input { @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-base outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100; }
+@utility term { @apply underline decoration-dotted decoration-brand-500 underline-offset-4 decoration-2 cursor-help text-inherit; }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0 } 70% { transform: scale(1.08) } 100% { transform: scale(1); opacity: 1 } }
+.animate-pop { animation: pop .35s ease-out both; }
+@keyframes slideup { from { transform: translateY(100%) } to { transform: translateY(0) } }
+.animate-slideup { animation: slideup .25s ease-out both; }
+@keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
+.animate-fadein { animation: fadein .2s ease-out both; }
