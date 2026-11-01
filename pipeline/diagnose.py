@@ -14,7 +14,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--symbols", default="")
 ap.add_argument("--news", default="")
 ap.add_argument("--fred", default="")
-a = ap.parse_args()
+a, _ = ap.parse_known_args()
 print("yfinance", yf.__version__)
 
 for s in filter(None, a.symbols.split(",")):
@@ -45,3 +45,26 @@ for sid in filter(None, a.fred.split(",")):
                 print(f"[fred] {sid} {hdr_name} {'range' if 'cosd' in url else 'full'}: HTTP {r.status_code} lines={len(lines)} head={lines[:2]} tail={lines[-1:]}")
             except Exception as e:  # noqa: BLE001
                 print(f"[fred] {sid} {hdr_name}: ERROR {e.__class__.__name__}: {e}")
+
+# ---- RSS
+import xml.etree.ElementTree as ET
+from urllib.parse import quote
+
+ap2 = argparse.ArgumentParser()
+ap2.add_argument("--rss", default="AAPL|Apple,TEVA.TA|טבע")
+b, _ = ap2.parse_known_args()
+for pair in filter(None, b.rss.split(",")):
+    sym, name = pair.split("|")
+    urls = [
+        ("yahoo-rss", f"https://feeds.finance.yahoo.com/rss/2.0/headline?s={sym}&region=US&lang=en-US"),
+        ("gnews-en", f"https://news.google.com/rss/search?q={quote(name + ' stock')}&hl=en-US&gl=US&ceid=US:en"),
+        ("gnews-he", f"https://news.google.com/rss/search?q={quote(name + ' מניה')}&hl=he&gl=IL&ceid=IL:he"),
+    ]
+    for label, url in urls:
+        try:
+            r = requests.get(url, timeout=20)
+            items = ET.fromstring(r.content).findall(".//item") if r.status_code == 200 else []
+            first = items[0] if items else None
+            print(f"[rss] {sym} {label}: HTTP {r.status_code} items={len(items)}" + (f" | {first.findtext('title')} | {first.findtext('pubDate')} | {first.findtext('source')}" if first is not None else ""))
+        except Exception as e:  # noqa: BLE001
+            print(f"[rss] {sym} {label}: ERROR {e.__class__.__name__}: {e}")
