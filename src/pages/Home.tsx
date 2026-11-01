@@ -11,7 +11,8 @@ import { awardXp, checkAchievements } from '@/game/actions';
 import { Change, ProgressBar, RichText, SectionTitle, useCoachOnce } from '@/ui/components';
 import { PortfolioCard, PortfolioSwitcher, TimeMachineBar } from '@/ui/portfolioBits';
 import { clsx, fmtPrice } from '@/ui/format';
-import { instCurrency } from '@/engine/universe';
+import { instCurrency, instName } from '@/engine/universe';
+import { newsTitle, sortNews } from '@/ui/NewsCard';
 
 function hash(s: string): number {
   let h = 0;
@@ -110,7 +111,7 @@ export default function Home() {
       .slice(0, 3);
   }, [profile, portfolios, profiles, market]);
   const histEvents = p?.mode === 'history' ? eventsUntil(date).slice(0, 3) : [];
-  const liveNews = p?.mode !== 'history' ? news.slice(0, 4) : [];
+  const liveNews = p?.mode !== 'history' ? sortNews(news).slice(0, 4) : [];
   const tip = GLOSSARY.length ? GLOSSARY[hash(todayISO()) % GLOSSARY.length] : undefined;
 
   return (
@@ -202,8 +203,12 @@ export default function Home() {
             ))}
           {liveNews.map((n) => (
             <div key={n.id} className="py-2 border-b last:border-0 border-slate-100">
-              <div className="text-xs text-slate-500">{n.tickers.join(', ')} · {n.time.slice(0, 10)}</div>
-              <div className="font-semibold">{n.he?.titleHe ?? n.title}</div>
+              <div className="text-xs text-slate-500">
+                {n.tickers.map((t) => instName(t)).join(', ')} · {n.publisher}
+              </div>
+              <a href={n.url} target="_blank" rel="noreferrer" dir="auto" className="block font-semibold hover:underline">
+                {newsTitle(n)}
+              </a>
               {n.he && <div className="text-sm text-slate-600">{n.he.kidHe}</div>}
             </div>
           ))}

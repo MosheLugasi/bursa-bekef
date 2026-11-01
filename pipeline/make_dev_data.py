@@ -250,8 +250,27 @@ def fake_fred(series: str):
     return out
 
 
+def fake_news(inst):
+    now = dt.datetime.now(dt.timezone.utc)
+    out = []
+    for k in range(2):
+        he = k == 0
+        out.append({
+            "id": f"dev-{inst['id']}-{k}",
+            "tickers": [inst["id"]],
+            "title": f"[פיתוח] כותרת סינתטית על {inst['nameHe']}" if he else f"[DEV] Synthetic headline about {inst['nameEn']}",
+            "summary": "",
+            "publisher": "Dev Data",
+            "url": "https://example.com",
+            "time": (now - dt.timedelta(days=k * 2)).isoformat(),
+            "lang": "he" if he else "en",
+        })
+    return out
+
+
 def main():
     fetch_data.yf.Ticker = FakeTicker  # type: ignore[attr-defined]
+    fetch_data.fetch_news = fake_news
     fetch_data.fetch_fred = fake_fred
     fetch_data.time.sleep = lambda *_: None  # type: ignore[assignment]
     sys.argv = [sys.argv[0], "--out", "public/data", "--cache", "/nonexistent-cache"]

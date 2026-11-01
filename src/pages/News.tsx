@@ -6,7 +6,7 @@ import { eventsUntil } from '@/content';
 import { addDays, formatDateHe } from '@/engine/dates';
 import { inst } from '@/engine/universe';
 import { Change, RichText, Segmented } from '@/ui/components';
-import { clsx } from '@/ui/format';
+import { NewsCard, sortNews } from '@/ui/NewsCard';
 
 const CAT: Record<string, string> = { pandemic: '🦠 מגפה', rates: '🏦 ריבית', tech: '💡 טכנולוגיה', war: '⚔️ ביטחון', earnings: '📊 דוחות', politics: '🏛️ פוליטיקה', energy: '⛽ אנרגיה', company: '🏢 חברות', crisis: '🚨 משבר', market: '📈 שוק' };
 
@@ -83,29 +83,8 @@ export default function News() {
       {tab === 'live' && (
         <div className="space-y-2">
           {!news.length && <div className="text-center text-slate-500 py-8">אין כותרות כרגע.</div>}
-          {news.slice(0, 80).map((n) => (
-            <div key={n.id} className="card p-3">
-              <div className="text-xs text-slate-500 flex gap-2 flex-wrap">
-                <span>{n.time.slice(0, 10)}</span>
-                {n.tickers.map((t) => (
-                  <Link key={t} to={`/asset/${encodeURIComponent(t)}`} className="text-brand-700">
-                    {inst(t)?.emoji} {inst(t)?.nameHe ?? t}
-                  </Link>
-                ))}
-                {n.he && <span>{n.he.sentiment === 'positive' ? '😃 חיובי' : n.he.sentiment === 'negative' ? '😟 שלילי' : '😐 ניטרלי'}</span>}
-              </div>
-              {n.he && (
-                <>
-                  <div className="font-bold">{n.he.titleHe}</div>
-                  <div className="text-sm text-slate-700">{kid ? n.he.kidHe : n.he.summaryHe}</div>
-                </>
-              )}
-              <a href={n.url} target="_blank" rel="noreferrer" className={clsx('block text-sm mt-1', n.he ? 'text-slate-500' : 'font-semibold text-slate-800')} dir="ltr">
-                {n.title} ↗
-              </a>
-            </div>
-          ))}
-          {news.length > 0 && !news.some((n) => n.he) && <div className="text-xs text-slate-500">💡 אפשר להפעיל תרגום אוטומטי לעברית (עם הסבר לילדים) – ראו בהוראות בקובץ README.</div>}
+          {sortNews(news).slice(0, 100).map((n) => <NewsCard key={n.id} n={n} kid={kid} showTickers />)}
+          {news.length > 0 && !news.some((n) => n.he) && <div className="text-xs text-slate-500">💡 אפשר להוסיף לכל כותרת הסבר פשוט לילדים (בעזרת Claude) – ראו בהוראות בקובץ README.</div>}
         </div>
       )}
     </div>

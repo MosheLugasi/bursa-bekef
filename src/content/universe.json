@@ -63,7 +63,7 @@
     { "id": "RMLI.TA", "symbol": "RMLI.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "רמי לוי", "nameEn": "Rami Levy Chain Stores", "sector": "retail", "emoji": "🛍️", "optionable": false },
     { "id": "MAXO.TA", "symbol": "MAXO.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "מקס סטוק", "nameEn": "Max Stock", "sector": "retail", "emoji": "🧺", "optionable": false },
     { "id": "FOX.TA", "symbol": "FOX.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "פוקס-ויזל", "nameEn": "Fox-Wizel", "sector": "retail", "emoji": "👕", "optionable": false },
-    { "id": "DELT.TA", "symbol": "DELT.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "דלתא גליל", "nameEn": "Delta Galil", "sector": "retail", "emoji": "🧦", "optionable": false },
+    { "id": "DELG.TA", "symbol": "DELG.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "דלתא גליל", "nameEn": "Delta Galil", "sector": "retail", "emoji": "🧦", "optionable": false },
     { "id": "STRS.TA", "symbol": "STRS.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "שטראוס", "nameEn": "Strauss Group", "sector": "food", "emoji": "🍫", "optionable": false },
     { "id": "AZRG.TA", "symbol": "AZRG.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "קבוצת עזריאלי", "nameEn": "Azrieli Group", "sector": "realestate", "emoji": "🏙️", "optionable": false },
     { "id": "ELAL.TA", "symbol": "ELAL.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "אל על", "nameEn": "El Al Israel Airlines", "sector": "industry", "emoji": "🛫", "optionable": false },

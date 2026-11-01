@@ -13,6 +13,7 @@ import { Change, Empty, HelpButton, RichText, Segmented, SectionTitle, Term, use
 import { TradeSheet, ProtectionSheet } from '@/ui/TradeSheet';
 import { Fundamentals } from '@/ui/Fundamentals';
 import { OptionsPanel } from '@/ui/OptionsPanel';
+import { NewsCard, sortNews } from '@/ui/NewsCard';
 import { clsx, fmtMoney, fmtNum, fmtPrice } from '@/ui/format';
 
 const RANGES = [
@@ -312,23 +313,8 @@ export default function Asset() {
                 </div>
               </div>
             ))}
-            {p?.mode !== 'history' &&
-              news.map((n) => (
-                <div key={n.id} className="rounded-xl border border-slate-100 p-3">
-                  <div className="text-xs text-slate-500">
-                    {n.publisher} · {n.time.slice(0, 10)} {n.he && (n.he.sentiment === 'positive' ? '😃' : n.he.sentiment === 'negative' ? '😟' : '😐')}
-                  </div>
-                  {n.he ? (
-                    <>
-                      <div className="font-bold">{n.he.titleHe}</div>
-                      <div className="text-sm mt-1">{kidView ? n.he.kidHe : n.he.summaryHe}</div>
-                    </>
-                  ) : null}
-                  <a href={n.url} target="_blank" rel="noreferrer" className="block text-sm text-brand-700 mt-1" dir="ltr">
-                    {n.title} ↗
-                  </a>
-                </div>
-              ))}
+            {p?.mode !== 'history' && news.length > 0 && <div className="font-bold pt-2">📡 כותרות מהימים האחרונים</div>}
+            {p?.mode !== 'history' && sortNews(news).slice(0, 12).map((n) => <NewsCard key={n.id} n={n} kid={kidView} />)}
             {histEvents.length === 0 && (p?.mode === 'history' || news.length === 0) && <div className="text-slate-500 text-center py-4">אין חדשות מיוחדות על החברה הזו עד התאריך הזה.</div>}
           </div>
         )}

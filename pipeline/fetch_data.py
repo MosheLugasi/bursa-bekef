@@ -19,16 +19,21 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import io
 import json
 import math
 import os
+import re
 import shutil
 import sys
 import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
+from email.utils import parsedate_to_datetime
 from pathlib import Path
+from urllib.parse import quote
+import xml.etree.ElementTree as ET
 
 import pandas as pd
 import requests
@@ -170,7 +175,8 @@ def fetch_fred(series: str) -> dict[dt.date, float]:
     url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series}"
 
     def go():
-        r = requests.get(url, timeout=60, headers={"User-Agent": "bursa-bekef-data/1.0"})
+        # בלי User-Agent מותאם: FRED מאט/חוסם כותרות לא מוכרות מהשרתים של GitHub
+        r = requests.get(url, timeout=60)
         r.raise_for_status()
         return r.text
 
@@ -335,32 +341,52 @@ def fetch_fundamentals(inst: dict) -> dict:
 
 
 # ---------------------------------------------------------------- חדשות
-def fetch_news(inst: dict) -> list[dict]:
-    try:
-        items = yf.Ticker(inst["symbol"]).news or []
-    except Exception as e:  # noqa: BLE001
-        log(f"  ! news {inst['id']}: {e}")
-        return []
+def _clean_name(name: str) -> str:
+    """שם לחיפוש: בלי סוגריים וסימנים (למשל "אלפבית (גוגל)" → "אלפבית")."""
+    return re.sub(r"\s*\(.*?\)", "", name).replace("״", "").replace("׳", "").strip()
+
+
+def _gnews(query: str, lang: str, max_items: int) -> list[dict]:
+    if lang == "he":
+        url = f"https://news.google.com/rss/search?q={quote(query)}&hl=he&gl=IL&ceid=IL:he"
+    else:
+        url = f"https://news.google.com/rss/search?q={quote(query)}&hl=en-US&gl=US&ceid=US:en"
+    r = requests.get(url, timeout=30)
+    if r.status_code != 200:
+        raise RuntimeError(f"HTTP {r.status_code}")
     out = []
-    for it in items[:8]:
-        c = it.get("content") if isinstance(it.get("content"), dict) else it
-        title = c.get("title")
-        if not title:
+    cutoff = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=30)
+    for item in ET.fromstring(r.content).findall(".//item"):
+        title = (item.findtext("title") or "").strip()
+        link = (item.findtext("link") or "").strip()
+        source = (item.findtext("source") or "").strip()
+        try:
+            when = parsedate_to_datetime(item.findtext("pubDate") or "")
+        except (TypeError, ValueError):
             continue
-        url = (c.get("canonicalUrl") or {}).get("url") if isinstance(c.get("canonicalUrl"), dict) else c.get("link")
-        pub = c.get("pubDate") or c.get("displayTime")
-        if not pub and c.get("providerPublishTime"):
-            pub = dt.datetime.fromtimestamp(int(c["providerPublishTime"]), dt.timezone.utc).isoformat()
-        provider = (c.get("provider") or {}).get("displayName") if isinstance(c.get("provider"), dict) else c.get("publisher")
-        out.append({
-            "id": str(it.get("id") or c.get("id") or url or title)[:120],
-            "tickers": [inst["id"]],
-            "title": title,
-            "summary": (c.get("summary") or "")[:600],
-            "publisher": provider or "",
-            "url": url or "",
-            "time": pub or "",
-        })
+        if not title or when < cutoff:
+            continue
+        if source and title.endswith(" - " + source):
+            title = title[: -len(" - " + source)]
+        out.append({"title": title, "url": link, "publisher": source, "time": when.astimezone(dt.timezone.utc).isoformat(), "lang": lang})
+    out.sort(key=lambda x: x["time"], reverse=True)
+    return out[:max_items]
+
+
+def fetch_news(inst: dict) -> list[dict]:
+    """כותרות אחרונות מ-Google News: בעברית לכל חברה, ובאנגלית גם לחברות אמריקאיות."""
+    queries = [(f"{_clean_name(inst['nameHe'])} מניה", "he", 5)]
+    if inst["market"] == "US":
+        queries.append((f"{_clean_name(inst['nameEn'])} stock", "en", 3))
+    out = []
+    for q, lang, n in queries:
+        try:
+            for it in _gnews(q, lang, n):
+                it_id = "g" + hashlib.md5((it["title"] + it["publisher"]).encode("utf-8")).hexdigest()[:16]
+                out.append({"id": it_id, "tickers": [inst["id"]], "summary": "", **it})
+        except Exception as e:  # noqa: BLE001
+            log(f"  ! news {inst['id']} ({lang}): {e}")
+        time.sleep(0.4)
     return out
 
 
@@ -389,7 +415,7 @@ HE_SCHEMA = {
 
 HE_SYSTEM = (
     "אתם עורכי חדשות כלכליות למשחק לימודי בעברית לילדים מגיל 7 ולמבוגרים מתחילים. "
-    "לכל ידיעה באנגלית כתבו: titleHe – כותרת קצרה וברורה בעברית; summaryHe – 1-2 משפטים בעברית פשוטה למבוגר מתחיל; "
+    "לכל ידיעה (באנגלית או בעברית) כתבו: titleHe – כותרת קצרה וברורה בעברית; summaryHe – 1-2 משפטים בעברית פשוטה למבוגר מתחיל; "
     "kidHe – משפט אחד או שניים שילד בן 8 יבין, שמסביר מה קרה ולמה זה יכול להשפיע על מחיר המניה; "
     "sentiment – האם החדשה נשמעת חיובית, שלילית או ניטרלית עבור החברה. "
     "היו מדויקים ונאמנים למקור, אל תמציאו פרטים שלא מופיעים בידיעה, ואל תתנו המלצות השקעה. "
@@ -636,6 +662,7 @@ def main() -> int:
         "failed": failed,
     }
     write_json(out / "manifest.json", manifest)
+    log(f"  חדשות: {len(items)} ידיעות ({sum(1 for it in items if it.get('lang') == 'he')} בעברית)")
     log(f"== סיום: {len(results)} נכסים, נתונים עד {as_of}, נכשלו: {failed or 'אף אחד'} ==")
     return 0
 

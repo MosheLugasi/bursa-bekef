@@ -123,6 +123,7 @@ export interface NewsItem {
   publisher: string;
   url: string;
   time: string;
+  lang?: 'he' | 'en';
   he?: { titleHe: string; summaryHe: string; kidHe: string; sentiment: 'positive' | 'negative' | 'neutral' };
 }
 
