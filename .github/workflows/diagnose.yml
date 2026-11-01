@@ -1,0 +1,28 @@
+name: בדיקת מקורות נתונים
+
+on:
+  workflow_dispatch:
+    inputs:
+      symbols:
+        description: 'סימולים לבדיקת מחיר (מופרדים בפסיקים)'
+        default: 'DELG.TA,DELT.TA,AAPL'
+      news:
+        description: 'סימולים לבדיקת חדשות'
+        default: 'AAPL,TEVA.TA'
+      fred:
+        description: 'סדרות FRED'
+        default: 'IRLTLT01ILM156N,IR3TIB01ILM156N'
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: pipeline/requirements.txt
+      - run: pip install -r pipeline/requirements.txt
+      - run: python pipeline/diagnose.py --symbols "${{ inputs.symbols }}" --news "${{ inputs.news }}" --fred "${{ inputs.fred }}"
