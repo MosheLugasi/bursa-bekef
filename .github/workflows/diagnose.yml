@@ -18,7 +18,7 @@ on:
 jobs:
   diagnose:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -27,4 +27,5 @@ jobs:
           cache: pip
           cache-dependency-path: pipeline/requirements.txt
       - run: pip install -r pipeline/requirements.txt
-      - run: python pipeline/diagnose.py --symbols "${{ inputs.symbols || 'DELG.TA,DELT.TA,AAPL' }}" --news "${{ inputs.news || 'AAPL,TEVA.TA' }}" --fred "${{ inputs.fred || 'IRLTLT01ILM156N,IR3TIB01ILM156N' }}"
+      - run: pip install lxml html5lib beautifulsoup4
+      - run: python pipeline/research/rank_universe.py
