@@ -198,7 +198,7 @@
     {"id": "AURA.TA", "symbol": "AURA.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "אאורה", "nameEn": "Aura Investments", "sector": "realestate", "emoji": "🏠", "optionable": false, "rank": 70},
     {"id": "YHNF.TA", "symbol": "YHNF.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "מ. יוחננוף", "nameEn": "M. Yochananof", "sector": "retail", "emoji": "🛒", "optionable": false, "rank": 72},
     {"id": "AYAL.TA", "symbol": "AYAL.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "איילון ביטוח", "nameEn": "Ayalon Insurance", "sector": "finance", "emoji": "🛡️", "optionable": false, "rank": 73},
-    {"id": "LAPD.TA", "symbol": "LAPD.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "לפידות כלל", "nameEn": "Lapidoth", "sector": "energy", "emoji": "🛠️", "optionable": false, "rank": 75},
+    {"id": "LAPD.TA", "symbol": "LAPD.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "לפידות קפיטל", "nameEn": "Lapidoth Capital", "sector": "realestate", "emoji": "🏗️", "optionable": false, "rank": 75},
     {"id": "ISCN.TA", "symbol": "ISCN.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "ישראל קנדה", "nameEn": "Israel Canada", "sector": "realestate", "emoji": "🏠", "optionable": false, "rank": 78},
     {"id": "RIT1.TA", "symbol": "RIT1.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "ריט 1", "nameEn": "Reit 1", "sector": "realestate", "emoji": "🏢", "optionable": false, "rank": 79},
     {"id": "BLSR.TA", "symbol": "BLSR.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "ריבוע כחול נדל״ן", "nameEn": "Blue Square Real Estate", "sector": "realestate", "emoji": "🏢", "optionable": false, "rank": 80},

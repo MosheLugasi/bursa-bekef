@@ -212,23 +212,23 @@ function SectorCompare({ id, date, mine }: { id: string; date: ISODate; mine: Me
                     {ii.emoji} {ii.nameHe}
                   </Link>
                 </td>
-                <td className="p-1.5 text-center num">{fmtBig(m.marketCap, m.priceCur)}</td>
-                <td className="p-1.5 text-center num">{cell(m.revenueGrowth, 'pct')}</td>
-                <td className="p-1.5 text-center num">{cell(m.netMargin, 'pct')}</td>
-                <td className="p-1.5 text-center num">{cell(m.pe, 'x')}</td>
-                <td className="p-1.5 text-center num">{cell(m.debtToEquity, 'x')}</td>
-                <td className="p-1.5 text-center num">{fmtPct(m.divYield, 1, false)}</td>
+                <td className="p-1.5 text-center"><span className="num">{fmtBig(m.marketCap, m.priceCur)}</span></td>
+                <td className="p-1.5 text-center"><span className="num">{cell(m.revenueGrowth, 'pct')}</span></td>
+                <td className="p-1.5 text-center"><span className="num">{cell(m.netMargin, 'pct')}</span></td>
+                <td className="p-1.5 text-center"><span className="num">{cell(m.pe, 'x')}</span></td>
+                <td className="p-1.5 text-center"><span className="num">{cell(m.debtToEquity, 'x')}</span></td>
+                <td className="p-1.5 text-center"><span className="num">{fmtPct(m.divYield, 1, false)}</span></td>
               </tr>
             );
           })}
           <tr className="border-t-2 border-slate-200 text-slate-600">
             <td className="p-1.5 text-right">📏 חציון הסקטור</td>
             <td className="p-1.5 text-center">—</td>
-            <td className="p-1.5 text-center num">{cell(med.revenueGrowth, 'pct')}</td>
-            <td className="p-1.5 text-center num">{cell(med.netMargin, 'pct')}</td>
-            <td className="p-1.5 text-center num">{cell(med.pe, 'x')}</td>
-            <td className="p-1.5 text-center num">{cell(med.debtToEquity, 'x')}</td>
-            <td className="p-1.5 text-center num">{med.divYield !== undefined ? fmtPct(med.divYield, 1, false) : '—'}</td>
+            <td className="p-1.5 text-center"><span className="num">{cell(med.revenueGrowth, 'pct')}</span></td>
+            <td className="p-1.5 text-center"><span className="num">{cell(med.netMargin, 'pct')}</span></td>
+            <td className="p-1.5 text-center"><span className="num">{cell(med.pe, 'x')}</span></td>
+            <td className="p-1.5 text-center"><span className="num">{cell(med.debtToEquity, 'x')}</span></td>
+            <td className="p-1.5 text-center"><span className="num">{med.divYield !== undefined ? fmtPct(med.divYield, 1, false) : '—'}</span></td>
           </tr>
         </tbody>
       </table>
