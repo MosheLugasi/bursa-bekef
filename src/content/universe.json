@@ -215,13 +215,13 @@
     {"id": "ISHI.TA", "symbol": "ISHI.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "מספנות ישראל", "nameEn": "Israel Shipyards", "sector": "industry", "emoji": "🚢", "optionable": false, "rank": 91},
     {"id": "AFRE.TA", "symbol": "AFRE.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "אפריקה מגורים", "nameEn": "Africa Israel Residences", "sector": "realestate", "emoji": "🏠", "optionable": false, "rank": 92},
     {"id": "DANE.TA", "symbol": "DANE.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "דנאל", "nameEn": "Danel", "sector": "health", "emoji": "🤝", "optionable": false, "rank": 93},
-    {"id": "NFTA.TA", "symbol": "NFTA.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "נפטא", "nameEn": "Naphtha", "sector": "energy", "emoji": "⛽", "optionable": false, "rank": 94},
-    {"id": "ACRO.TA", "symbol": "ACRO.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "אקרו", "nameEn": "Acro", "sector": "realestate", "emoji": "🏠", "optionable": false, "rank": 95},
-    {"id": "TMRP.TA", "symbol": "TMRP.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "תמר פטרוליום", "nameEn": "Tamar Petroleum", "sector": "energy", "emoji": "⛽", "optionable": false, "rank": 96},
-    {"id": "NTML.TA", "symbol": "NTML.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "נטו מלינדה", "nameEn": "Neto Malinda", "sector": "food", "emoji": "🧀", "optionable": false, "rank": 97},
-    {"id": "PRSK.TA", "symbol": "PRSK.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "פרשקובסקי", "nameEn": "Prashkovsky", "sector": "realestate", "emoji": "🏠", "optionable": false, "rank": 98},
-    {"id": "MDTR.TA", "symbol": "MDTR.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "מגדלי הים התיכון", "nameEn": "Mediterranean Towers", "sector": "health", "emoji": "👵", "optionable": false, "rank": 99},
-    {"id": "SLARL.TA", "symbol": "SLARL.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "סלע נדל״ן", "nameEn": "Sella Real Estate", "sector": "realestate", "emoji": "🏢", "optionable": false, "rank": 100}
+    {"id": "PTBL.TA", "symbol": "PTBL.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "נכסים ובנין", "nameEn": "Property & Building", "sector": "realestate", "emoji": "🏢", "optionable": false, "rank": 100},
+    {"id": "ACRO.TA", "symbol": "ACRO.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "אקרו", "nameEn": "Acro", "sector": "realestate", "emoji": "🏠", "optionable": false, "rank": 94},
+    {"id": "TMRP.TA", "symbol": "TMRP.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "תמר פטרוליום", "nameEn": "Tamar Petroleum", "sector": "energy", "emoji": "⛽", "optionable": false, "rank": 95},
+    {"id": "NTML.TA", "symbol": "NTML.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "נטו מלינדה", "nameEn": "Neto Malinda", "sector": "food", "emoji": "🧀", "optionable": false, "rank": 96},
+    {"id": "PRSK.TA", "symbol": "PRSK.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "פרשקובסקי", "nameEn": "Prashkovsky", "sector": "realestate", "emoji": "🏠", "optionable": false, "rank": 97},
+    {"id": "MDTR.TA", "symbol": "MDTR.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "מגדלי הים התיכון", "nameEn": "Mediterranean Towers", "sector": "health", "emoji": "👵", "optionable": false, "rank": 98},
+    {"id": "SLARL.TA", "symbol": "SLARL.TA", "market": "IL", "type": "stock", "currency": "ILS", "nameHe": "סלע נדל״ן", "nameEn": "Sella Real Estate", "sector": "realestate", "emoji": "🏢", "optionable": false, "rank": 99}
   ],
   "macro": {
     "USDILS": {

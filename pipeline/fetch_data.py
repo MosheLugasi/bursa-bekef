@@ -77,6 +77,41 @@ def retry(fn, tries=4, base=3.0, what=""):
 
 
 # ---------------------------------------------------------------- מחירים
+
+# שעת סגירה (UTC) שאחריה נתוני היום סופיים. ריצה במהלך המסחר לא תשמור מחיר תוך-יומי כ"סגירה".
+CLOSE_UTC = {"IL": (15, 45), "US": (21, 15)}
+
+
+def bar_is_final(d: dt.date, market: str, now: dt.datetime | None = None) -> bool:
+    now = now or dt.datetime.now(dt.timezone.utc)
+    if d < now.date():
+        return True
+    if d > now.date():
+        return False
+    h, m = CLOSE_UTC.get(market, CLOSE_UTC["US"])
+    return (now.hour, now.minute) >= (h, m)
+
+
+def fix_unit_breaks(out: dict, divs: list, split_dates: set) -> list:
+    """Yahoo מחליף לפעמים יחידות (שקל ↔ אגורה) באמצע הסדרה – קפיצה של פי ~100 בלי פיצול.
+    מתקנים את החלק שלפני השבירה כך שיתאים ליחידות העדכניות. מחזיר רשימת תיקונים ללוג."""
+    fixes = []
+    c = out["c"]
+    for i in range(len(c) - 1, 0, -1):
+        a, b = c[i - 1], c[i]
+        if not a or not b or out["dates"][i] in split_dates:
+            continue
+        r = b / a
+        k = 100.0 if 60 <= r <= 160 else 0.01 if 1 / 160 <= r <= 1 / 60 else None
+        if k is None:
+            continue
+        for key in ("o", "h", "l", "c"):
+            out[key][:i] = [r2(v * k) if v is not None else None for v in out[key][:i]]
+        cut = out["dates"][i]
+        divs[:] = [(d, round(a_ * k, 6)) if d < cut else (d, a_) for d, a_ in divs]
+        fixes.append((cut.isoformat(), k))
+    return fixes
+
 def fetch_history(symbol: str) -> tuple[pd.DataFrame, str | None]:
     t = yf.Ticker(symbol)
     df = t.history(start=START, auto_adjust=False, actions=True, raise_errors=True)
@@ -152,6 +187,15 @@ def process_instrument(inst: dict) -> dict:
             if d and d > 0:
                 divs.append((dates[i], round(float(d) * factor[i] * scale, 6)))
 
+    # מחיר של היום נשמר רק אחרי סגירת המסחר באותו שוק
+    while out["dates"] and not bar_is_final(out["dates"][-1], inst["market"]):
+        for key in ("dates", "o", "h", "l", "c", "v"):
+            out[key].pop()
+    divs = [d_ for d_ in divs if bar_is_final(d_[0], inst["market"])]
+    if inst["market"] == "IL":
+        for cut, k in fix_unit_breaks(out, divs, {d_ for d_, _ in split_events}):
+            log(f"  ⚖ {inst['id']}: תוקנה החלפת יחידות ב-{cut} (×{k})")
+
     # בדיקת שפיות לפיצולים
     for sd, ratio in split_events:
         try:
@@ -168,7 +212,7 @@ def process_instrument(inst: dict) -> dict:
 # ---------------------------------------------------------------- מאקרו
 def fetch_yahoo_close(symbol: str) -> dict[dt.date, float]:
     df = retry(lambda: yf.Ticker(symbol).history(start=START, auto_adjust=False, raise_errors=True), what=symbol)
-    return {ts.date(): float(v) for ts, v in df["Close"].items() if not pd.isna(v) and v > 0}
+    return {ts.date(): float(v) for ts, v in df["Close"].items() if not pd.isna(v) and v > 0 and bar_is_final(ts.date(), "US")}
 
 
 def fetch_fred(series: str) -> dict[dt.date, float]:

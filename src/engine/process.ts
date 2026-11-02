@@ -69,7 +69,7 @@ function applySplits(p: Portfolio, market: MarketData, prev: ISODate, d: ISODate
     changed = true;
     if (pos.kind === 'stock') {
       const newQty = Math.round(pos.qty * r);
-      events.push({ date: d, kind: 'split', instrumentId: id, good: true, text: `✂️ ${instName(id)} פיצלה את המניה ביחס ${fmtRatio(r)}! היו לכם ${pos.qty} מניות ועכשיו יש ${newQty}. השווי הכולל לא השתנה.` });
+      events.push({ date: d, kind: 'split', instrumentId: id, good: true, text: splitText(instName(id), r, pos.qty, newQty) });
       txs.push({ id: uid('tx_'), date: d, type: 'split', instrumentId: id, qty: newQty, cash: 0, note: `פיצול ${fmtRatio(r)}`, meta: { ratio: r } });
       return {
         ...pos,
@@ -90,6 +90,18 @@ function applySplits(p: Portfolio, market: MarketData, prev: ISODate, d: ISODate
     return r === 1 ? o : { ...o, qty: Math.round(o.qty * r), limitPrice: o.limitPrice / r };
   });
   return { ...p, positions, orders, txs: [...p.txs, ...txs] };
+}
+
+/** יחס "עגול" (2, 3, 10, 1/8...) = פיצול רגיל; יחס לא עגול = התאמה בגלל ספין-אוף או הנפקת זכויות */
+export function isRoundRatio(r: number): boolean {
+  const x = r >= 1 ? r : 1 / r;
+  return Math.abs(x - Math.round(x)) < 0.02;
+}
+
+function splitText(name: string, r: number, before: number, after: number): string {
+  if (isRoundRatio(r))
+    return `✂️ ${name} פיצלה את המניה ביחס ${fmtRatio(r)}! היו לכם ${before} מניות ועכשיו יש ${after}. השווי הכולל לא השתנה.`;
+  return `🧩 ${name} הפרידה חלק מהעסק לחברה נפרדת (ספין-אוף) או ביצעה שינוי בהון. כדי לשמור על השווי שלכם, מספר המניות עודכן מ-${before} ל-${after}.`;
 }
 
 function fmtRatio(r: number): string {

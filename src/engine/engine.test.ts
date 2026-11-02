@@ -3,7 +3,7 @@ import { MarketData, decodeSeries, type OverviewFile } from './market';
 import { isoToEpochDay, addDays, thirdFriday } from './dates';
 import { blackScholes, bondPricePer100, quoteNewBond, bondProduct, availableExpiries, strikeGrid, curveYield } from './finance';
 import { executeBuy, executeSell, placeLimitOrder, setProtection, buyBond, buyOption, valuate, maxQtyForAmount, sellBond } from './trading';
-import { advance } from './process';
+import { advance, isRoundRatio } from './process';
 import { DEFAULT_SETTINGS, type Portfolio } from './types';
 import { computeStats } from './metrics';
 
@@ -161,6 +161,13 @@ describe('corporate actions', () => {
     expect(pos.kind === 'stock' && pos.qty).toBe(40);
     expect(valuate(r.portfolio, m).total).toBeCloseTo(before, 4);
     expect(r.events.some((e) => e.kind === 'split')).toBe(true);
+  });
+
+  it('tells real splits from spin-off adjustments', () => {
+    expect(isRoundRatio(10)).toBe(true);
+    expect(isRoundRatio(0.125)).toBe(true);
+    expect(isRoundRatio(1.054)).toBe(false);
+    expect(isRoundRatio(1.973)).toBe(false);
   });
 
   it('pays dividends', () => {
