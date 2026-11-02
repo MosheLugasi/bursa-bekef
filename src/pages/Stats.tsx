@@ -7,10 +7,11 @@ import { instName, inst } from '@/engine/universe';
 import { bondProduct } from '@/engine/finance';
 import { formatDateHe } from '@/engine/dates';
 import { CompareChart, Donut, GroupedBars } from '@/ui/charts';
-import { Change, Empty, SectionTitle, Stat, Term } from '@/ui/components';
+import { Change, Empty, SectionTitle, Stat, Term, useCoachOnce } from '@/ui/components';
 import { clsx, fmtMoney, fmtNum, fmtPct } from '@/ui/format';
 
 export default function Stats() {
+  useCoachOnce('stats');
   const market = useMarket();
   const me = useCurrentProfile()!;
   const portfolios = useGame((s) => s.portfolios);

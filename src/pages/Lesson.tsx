@@ -6,10 +6,11 @@ import { useUI } from '@/state/ui';
 import { awardXp, checkAchievements, fireConfetti } from '@/game/actions';
 import { FEATURE_INFO, hasFeature, type Feature } from '@/game/features';
 import { XP } from '@/game/xp';
-import { Empty, ProgressBar, RichText } from '@/ui/components';
+import { Empty, ProgressBar, RichText, useCoachOnce } from '@/ui/components';
 import { clsx } from '@/ui/format';
 
 export default function LessonPage() {
+  useCoachOnce('lesson');
   const { id } = useParams();
   const lesson = LESSON_BY_ID[id ?? ''];
   const profile = useCurrentProfile()!;

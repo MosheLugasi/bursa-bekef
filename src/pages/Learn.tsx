@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
-import { useCurrentProfile } from '@/state/store';
+import { useCurrentProfile, useGame } from '@/state/store';
+import { useUI } from '@/state/ui';
+import { COACH_TOPICS } from '@/game/coach';
+import { JOURNEY } from '@/game/journey';
 import { LESSONS, EVENTS } from '@/content';
 import { FEATURE_INFO, type Feature } from '@/game/features';
 import { HelpButton, ProgressBar, SectionTitle, useCoachOnce } from '@/ui/components';
@@ -10,8 +13,12 @@ const UNLOCK_TO_FEATURE: Record<string, Feature> = { limit: 'limit', stopLoss: '
 
 export default function Learn() {
   const profile = useCurrentProfile()!;
+  const update = useGame((s) => s.updateProfile);
+  const openCoach = useUI((s) => s.openCoach);
+  const toast = useUI((s) => s.toast);
   useCoachOnce('academy');
   const done = Object.keys(profile.lessons).length;
+  const jDone = JOURNEY.filter((st) => profile.journey?.[st.id]).length;
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -27,6 +34,18 @@ export default function Learn() {
         </div>
         <ProgressBar value={done / LESSONS.length} className="mt-2" color="bg-emerald-500" />
       </div>
+      <Link to="/journey" className="card p-4 flex items-center gap-4 hover:shadow-md bg-gradient-to-l from-amber-50 to-emerald-50 border-amber-100">
+        <div className="text-5xl anim-bob">🗺️</div>
+        <div className="flex-1">
+          <div className="text-xs font-bold text-amber-700">{jDone === 0 ? 'מתחילים כאן!' : jDone === JOURNEY.length ? 'סיימתם – אפשר לשחק שוב' : 'ממשיכים במסע'}</div>
+          <div className="font-extrabold text-lg">המסע של שורי</div>
+          <div className="text-sm text-slate-600">הרפתקה עם ציורים ומשחקים: מה זו בורסה, מה זו מניה, תשואה ועוד</div>
+          <ProgressBar value={jDone / JOURNEY.length} className="mt-2" color="bg-amber-400" />
+        </div>
+        <div className="text-sm font-bold text-amber-700 whitespace-nowrap">
+          {jDone}/{JOURNEY.length} ⭐
+        </div>
+      </Link>
       <div className="grid sm:grid-cols-3 gap-3">
         <Link to="/predict" className="card p-4 hover:shadow-md bg-violet-50/60">
           <div className="text-3xl">🔮</div>
@@ -75,6 +94,28 @@ export default function Learn() {
           </div>
         </div>
       ))}
+      <div className="card p-4">
+        <SectionTitle>🐂 ההסברים של שורי</SectionTitle>
+        <p className="text-sm text-slate-600 mb-3">אפשר לפתוח כל הסבר שוב, מתי שרוצים. ✓ = כבר ראיתם.</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {COACH_TOPICS.map((t) => (
+            <button key={t.key} onClick={() => openCoach(t.key)} className="rounded-xl border border-slate-200 bg-white p-2.5 text-right hover:bg-brand-50 hover:border-brand-200 flex items-center gap-2">
+              <span className="text-2xl">{t.emoji}</span>
+              <span className="flex-1 text-sm font-semibold">{t.title}</span>
+              {profile.seenCoach[t.key] && <span className="text-xs text-emerald-600">✓</span>}
+            </button>
+          ))}
+        </div>
+        <button
+          className="btn-soft mt-3"
+          onClick={() => {
+            update(profile.id, (x) => ({ ...x, seenCoach: {} }));
+            toast({ emoji: '🐂', text: 'מעכשיו שורי יסביר שוב כל מסך בפעם הראשונה שתגיעו אליו', kind: 'info' });
+          }}
+        >
+          🔄 להתחיל את כל ההדרכות מההתחלה
+        </button>
+      </div>
     </div>
   );
 }

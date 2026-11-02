@@ -51,3 +51,37 @@ body {
 .animate-slideup { animation: slideup .25s ease-out both; }
 @keyframes fadein { from { opacity: 0 } to { opacity: 1 } }
 .animate-fadein { animation: fadein .2s ease-out both; }
+
+/* ---------- אנימציות (מכובדות להעדפת "פחות תנועה") ---------- */
+@keyframes float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+@keyframes wiggle { 0%, 100% { transform: rotate(-6deg) } 50% { transform: rotate(6deg) } }
+@keyframes fall { 0% { transform: translateY(-60px); opacity: 0 } 15% { opacity: 1 } 85% { opacity: 1 } 100% { transform: translateY(90px); opacity: 0 } }
+@keyframes walk { 0% { transform: translateX(-140px) } 100% { transform: translateX(140px) } }
+@keyframes bob { 0%, 100% { transform: translateY(0) scale(1) } 50% { transform: translateY(-8px) scale(1.06) } }
+@keyframes rise { 0% { transform: translateY(10px); opacity: 0 } 30% { opacity: 1 } 100% { transform: translateY(-50px); opacity: 0 } }
+@keyframes draw { from { stroke-dashoffset: var(--len, 1000) } to { stroke-dashoffset: 0 } }
+@keyframes shake { 0%, 100% { transform: translateX(0) } 20%, 60% { transform: translateX(-8px) } 40%, 80% { transform: translateX(8px) } }
+@keyframes grow { from { transform: scale(0) } to { transform: scale(1) } }
+@keyframes spin-slow { to { transform: rotate(360deg) } }
+@keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, .5) } 100% { box-shadow: 0 0 0 16px rgba(79, 70, 229, 0) } }
+@keyframes fly-in { 0% { transform: translate(var(--fx, 0), -120px) scale(.6); opacity: 0 } 100% { transform: translate(0, 0) scale(1); opacity: 1 } }
+@media (prefers-reduced-motion: no-preference) {
+  .anim-float { animation: float 3s ease-in-out infinite; display: inline-block; }
+  .anim-wiggle { animation: wiggle 1.6s ease-in-out infinite; display: inline-block; }
+  .anim-fall { animation: fall 2.4s linear infinite; }
+  .anim-walk { animation: walk 6s linear infinite; }
+  .anim-bob { animation: bob 1.8s ease-in-out infinite; display: inline-block; }
+  .anim-rise { animation: rise 1.6s ease-out infinite; }
+  .anim-draw { stroke-dasharray: var(--len, 1000); animation: draw 2.5s ease-out both; }
+  .anim-shake { animation: shake .45s ease-in-out; }
+  .anim-grow { animation: grow .5s cubic-bezier(.34, 1.56, .64, 1) both; }
+  .anim-spin-slow { animation: spin-slow 12s linear infinite; }
+  .anim-pulse-ring { animation: pulse-ring 1.4s ease-out infinite; }
+  .anim-fly-in { animation: fly-in .7s cubic-bezier(.34, 1.56, .64, 1) both; }
+}
+@keyframes ticker-scroll { from { transform: translateY(0) } to { transform: translateY(-50%) } }
+@keyframes pulse-dot { 0%, 100% { r: 7 } 50% { r: 11 } }
+@media (prefers-reduced-motion: no-preference) {
+  .anim-ticker-scroll { animation: ticker-scroll 9s linear infinite; }
+  .anim-pulse-dot { animation: pulse-dot 1.2s ease-in-out infinite; }
+}

@@ -17,7 +17,9 @@ export default function Market() {
   const [tab, setTab] = useState<Tab>('IL');
   const [q, setQ] = useState('');
   const [sector, setSector] = useState<string>('');
-  const [sort, setSort] = useState<'default' | 'up' | 'down' | 'name'>('default');
+  const history = p?.mode === 'history';
+  // במכונת הזמן הדירוג הנוכחי לפי גודל הוא "מידע מהעתיד" – ממיינים לפי א-ב ולא מציגים דירוג
+  const [sort, setSort] = useState<'default' | 'up' | 'down' | 'name'>(history ? 'name' : 'default');
   const [familiar, setFamiliar] = useState(false);
   useCoachOnce('market');
 
@@ -94,7 +96,7 @@ export default function Market() {
             ['down', '▼ ירדו הכי הרבה'],
             ['name', 'א-ב']
           ] as const
-        ).map(([k, l]) => (
+        ).filter(([k]) => !(history && k === 'default')).map(([k, l]) => (
           <button key={k} onClick={() => setSort(k)} className={clsx('rounded-lg px-2 py-1', sort === k ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-100')}>
             {l}
           </button>
@@ -120,7 +122,7 @@ export default function Market() {
                 {i.nameHe} {i.israeli && <span title="חברה ישראלית">🇮🇱</span>}
               </span>
               <span className="block text-xs text-slate-500 truncate">
-                {i.rank && <span className="text-slate-400">#{i.rank} · </span>}
+                {i.rank && !history && <span className="text-slate-400">#{i.rank} · </span>}
                 <span dir="ltr">{i.id.replace('.TA', '')}</span> · {SECTORS[i.sector]?.nameHe}
               </span>
             </span>

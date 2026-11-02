@@ -5,12 +5,13 @@ import { loadNews, useMarket, type NewsItem } from '@/data/loader';
 import { eventsUntil } from '@/content';
 import { addDays, formatDateHe } from '@/engine/dates';
 import { inst } from '@/engine/universe';
-import { Change, RichText, Segmented } from '@/ui/components';
+import { Change, RichText, Segmented, useCoachOnce } from '@/ui/components';
 import { NewsCard, sortNews } from '@/ui/NewsCard';
 
 const CAT: Record<string, string> = { pandemic: '🦠 מגפה', rates: '🏦 ריבית', tech: '💡 טכנולוגיה', war: '⚔️ ביטחון', earnings: '📊 דוחות', politics: '🏛️ פוליטיקה', energy: '⛽ אנרגיה', company: '🏢 חברות', crisis: '🚨 משבר', market: '📈 שוק' };
 
 export default function News() {
+  useCoachOnce('news');
   const market = useMarket();
   const p = useActivePortfolio();
   const profile = useCurrentProfile()!;

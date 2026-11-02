@@ -23,6 +23,8 @@ export interface Profile {
   watchlist: string[];
   unlockAll?: boolean;
   daily?: { date: string; trades: number };
+  /** התקדמות במסע של שורי: תחנה -> כוכבים */
+  journey?: Record<string, { stars: number; at: string }>;
   activePortfolioId?: string;
   createdAt: string;
   updatedAt: string;

@@ -250,3 +250,47 @@ describe('stats', () => {
     expect(Number.isFinite(s.returnPct)).toBe(true);
   });
 });
+
+import { COMPANIES } from '@/content';
+import { atDate, profileAt } from '../content/dated';
+
+describe('dated content', () => {
+  it('hides text from the future in time machine and shows all in live mode', () => {
+    const t = 'אנבידיה מייצרת שבבים. {{2024-06-18|היום היא החברה היקרה בעולם.}} היא נוסדה ב-1993.';
+    expect(atDate(t, '2020-03-01')).toBe('אנבידיה מייצרת שבבים. היא נוסדה ב-1993.');
+    expect(atDate(t, '2024-06-18')).toContain('החברה היקרה בעולם');
+    expect(atDate(t)).toBe('אנבידיה מייצרת שבבים. היום היא החברה היקרה בעולם. היא נוסדה ב-1993.');
+  });
+  it('drops array items that become empty', () => {
+    const p = profileAt(
+      { id: 'X', tagline: 't', kid: 'k', adult: 'a', howMakesMoney: ['a'], products: ['ישן', '{{2023-12-31|חדש}}'], funFacts: [], risks: [], opportunities: [], competitors: [], israelConnection: '{{2022-01-31|נרכשה חברה ישראלית.}}' },
+      '2021-01-01'
+    );
+    expect(p.products).toEqual(['ישן']);
+    expect(p.israelConnection).toBeUndefined();
+  });
+  it('supports "before" markers (old headquarters, renamed competitors)', () => {
+    const hq = '{{<2021-12-01|פאלו אלטו}}{{2021-12-01|אוסטין}}';
+    expect(atDate(hq, '2020-01-01')).toBe('פאלו אלטו');
+    expect(atDate(hq, '2022-01-01')).toBe('אוסטין');
+    expect(atDate(hq)).toBe('אוסטין');
+    const p = profileAt(
+      { id: 'X', tagline: 't', kid: 'k', adult: 'a', howMakesMoney: [], products: [], funFacts: [], risks: [], opportunities: [], competitors: ['A', '{{2022-09-30|טמו}}'], headquarters: hq },
+      '2020-01-01'
+    );
+    expect(p.competitors).toEqual(['A']);
+    expect(p.headquarters).toBe('פאלו אלטו');
+  });
+  it('all company profile markers are well formed', () => {
+    for (const c of Object.values(COMPANIES)) {
+      for (const v of Object.values(c)) {
+        for (const t of Array.isArray(v) ? v : [v]) {
+          if (typeof t !== 'string' || !t.includes('{{')) continue;
+          // אחרי הסרת כל הסימונים התקינים לא נשארים סוגריים מסולסלים כפולים
+          expect(t.replace(/\{\{<?\d{4}-\d{2}-\d{2}\|[^{}]*\}\}/g, ''), `${c.id}: ${t}`).not.toMatch(/\{\{|\}\}/);
+          expect(atDate(t, '2019-01-02'), `${c.id}`).not.toMatch(/\{|\}/);
+        }
+      }
+    }
+  });
+});

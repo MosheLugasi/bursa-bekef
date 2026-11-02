@@ -6,6 +6,7 @@ import { checkAchievements, processLivePortfolios, touchStreak } from '@/game/ac
 import { levelFor } from '@/game/xp';
 import { CoachModal, Celebrations, GlossarySheet, SummaryModal, Toasts } from '@/ui/overlays';
 import { ProgressBar } from '@/ui/components';
+import { CoachButton } from '@/ui/CoachFab';
 import { useUI } from '@/state/ui';
 import { clsx } from '@/ui/format';
 import { startCloudSync } from '@/state/cloud';
@@ -23,6 +24,7 @@ import Glossary from '@/pages/Glossary';
 import Predict from '@/pages/Predict';
 import News from '@/pages/News';
 import Admin from '@/pages/Admin';
+import { JourneyMap, JourneyStationPage } from '@/pages/Journey';
 
 const NAV = [
   { to: '/home', emoji: '🏠', label: 'בית' },
@@ -32,6 +34,7 @@ const NAV = [
   { to: '/learn', emoji: '🎓', label: 'לומדים' }
 ];
 const MORE = [
+  { to: '/journey', emoji: '🗺️', label: 'המסע של שורי' },
   { to: '/bonds', emoji: '📜', label: 'אג״ח' },
   { to: '/stats', emoji: '📊', label: 'סטטיסטיקות' },
   { to: '/news', emoji: '📰', label: 'חדשות' },
@@ -58,6 +61,7 @@ function Header() {
           </button>
         )}
         <div className="flex-1" />
+        {profile && <CoachButton />}
         {profile && lvl && (
           <div className="flex items-center gap-2">
             <div className="hidden xs:block sm:block w-28">
@@ -234,6 +238,8 @@ export default function App() {
         <Route path="/stats" element={<RequireProfile><Stats /></RequireProfile>} />
         <Route path="/learn" element={<RequireProfile><Learn /></RequireProfile>} />
         <Route path="/learn/:id" element={<RequireProfile><LessonPage /></RequireProfile>} />
+        <Route path="/journey" element={<RequireProfile><JourneyMap /></RequireProfile>} />
+        <Route path="/journey/:id" element={<RequireProfile><JourneyStationPage /></RequireProfile>} />
         <Route path="/glossary" element={<RequireProfile><Glossary /></RequireProfile>} />
         <Route path="/predict" element={<RequireProfile><Predict /></RequireProfile>} />
         <Route path="/news" element={<RequireProfile><News /></RequireProfile>} />

@@ -5,6 +5,7 @@ import { useMarket, loadNews, type NewsItem } from '@/data/loader';
 import { INSTRUMENTS } from '@/engine/universe';
 import { formatDateHe, todayISO } from '@/engine/dates';
 import { LESSONS, QUIZ_BANK, eventsUntil, GLOSSARY } from '@/content';
+import { JOURNEY } from '@/game/journey';
 import { levelFor, XP } from '@/game/xp';
 import { ACHIEVEMENTS, makeCtx } from '@/game/achievements';
 import { awardXp, checkAchievements } from '@/game/actions';
@@ -128,6 +129,26 @@ export default function Home() {
           <ProgressBar value={lvl.progress} className="mt-1 max-w-xs" color="bg-amber-400" />
         </div>
       </div>
+
+      {(() => {
+        const jDone = JOURNEY.filter((st) => profile.journey?.[st.id]).length;
+        if (profile.ageGroup === 'adult' || jDone === JOURNEY.length) return null;
+        const nextSt = JOURNEY.find((st) => !profile.journey?.[st.id])!;
+        return (
+          <Link to={jDone === 0 ? '/journey' : `/journey/${nextSt.id}`} className="block rounded-3xl p-4 shadow-md bg-gradient-to-l from-amber-300 via-amber-200 to-emerald-200 hover:shadow-lg transition">
+            <div className="flex items-center gap-3">
+              <span className="text-5xl anim-bob">🗺️</span>
+              <div className="flex-1">
+                <div className="text-xs font-bold text-amber-900">{jDone === 0 ? 'מתחילים כאן! 👇' : `תחנה ${jDone + 1} מתוך ${JOURNEY.length}`}</div>
+                <div className="text-xl font-extrabold text-slate-900">{jDone === 0 ? 'צאו למסע של שורי' : `ממשיכים: ${nextSt.emoji} ${nextSt.title}`}</div>
+                <div className="text-sm text-slate-800">מה זו בורסה? מה זו מניה? הרפתקה קצרה עם ציורים ומשחקים</div>
+                <ProgressBar value={jDone / JOURNEY.length} className="mt-2 bg-white/60" color="bg-amber-500" />
+              </div>
+              <span className="text-2xl">←</span>
+            </div>
+          </Link>
+        );
+      })()}
 
       <PortfolioSwitcher />
       {p ? (

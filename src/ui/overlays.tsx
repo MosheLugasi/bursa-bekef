@@ -95,10 +95,16 @@ export function CoachModal() {
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-between mt-4">
-          <button className="btn-ghost text-sm" onClick={close}>
-            דלג
-          </button>
+        <div className="flex items-center justify-between mt-4 gap-2">
+          {step > 0 ? (
+            <button className="btn-ghost text-sm" onClick={() => setStep(step - 1)}>
+              → הקודם
+            </button>
+          ) : (
+            <button className="btn-ghost text-sm" onClick={close}>
+              דלג
+            </button>
+          )}
           <div className="flex gap-1">
             {steps.map((_, i) => (
               <span key={i} className={clsx('w-2 h-2 rounded-full', i === step ? 'bg-brand-600' : 'bg-slate-200')} />

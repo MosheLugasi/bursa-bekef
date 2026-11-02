@@ -6,6 +6,7 @@ import { inst, SECTORS } from '@/engine/universe';
 import { addDays, addMonths, formatDateHe } from '@/engine/dates';
 import { stockPosition } from '@/engine/trading';
 import { COMPANIES, eventsUntil } from '@/content';
+import { profileAt } from '@/content/dated';
 import { hasFeature } from '@/game/features';
 import { markCompanyRead } from '@/game/actions';
 import { PriceChart, RangeBar, type ChartMarker } from '@/ui/charts';
@@ -71,7 +72,10 @@ export default function Asset() {
   }, [p, id, date, market]);
 
   if (!i) return <Empty emoji="🤷" title="לא מצאנו את הנכס הזה" />;
-  const company = COMPANIES[id];
+  // במכונת הזמן מסננים מהפרופיל אירועים שעוד לא קרו בתאריך המשחק
+  const company = COMPANIES[id] ? profileAt(COMPANIES[id], p?.mode === 'history' ? date : undefined) : undefined;
+  // במכונת הזמן לא מציגים מתחרים שעוד לא נסחרו בתאריך המשחק
+  if (company && p?.mode === 'history') company.competitors = company.competitors.filter((c) => !inst(c) || market.available(c, date));
   const avail = market.available(id, date);
   const price = market.price(id, date);
   const pos = p ? stockPosition(p, id) : undefined;

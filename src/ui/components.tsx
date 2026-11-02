@@ -12,6 +12,8 @@ import { clsx, fmtPct, upDown } from './format';
 const TERM_RE = /\[\[([a-z0-9-]+)(?:\|([^\]]+))?\]\]|\*\*([^*]+)\*\*/g;
 
 export function RichText({ text, className, plain }: { text: string; className?: string; plain?: boolean }) {
+  // ליתר ביטחון: סימוני תאריך שלא סוננו מוצגים כטקסט רגיל (בלי הסוגריים)
+  text = text.replace(/\{\{<\d{4}-\d{2}-\d{2}\|[^{}]*\}\}/g, '').replace(/\{\{\d{4}-\d{2}-\d{2}\|([^{}]*)\}\}/g, '$1');
   const parts: ReactNode[] = [];
   let last = 0;
   let m: RegExpExecArray | null;

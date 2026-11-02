@@ -8,7 +8,7 @@ import { useCurrentProfile, useGame } from '@/state/store';
 import { awardXp, checkAchievements, fireConfetti } from '@/game/actions';
 import { XP } from '@/game/xp';
 import { PriceChart } from '@/ui/charts';
-import { Change, Empty, RichText } from '@/ui/components';
+import { Change, Empty, RichText, useCoachOnce } from '@/ui/components';
 import { clsx } from '@/ui/format';
 
 interface Round {
@@ -20,6 +20,7 @@ interface Round {
 }
 
 export default function Predict() {
+  useCoachOnce('predict');
   const market = useMarket();
   const profile = useCurrentProfile()!;
   const update = useGame((s) => s.updateProfile);

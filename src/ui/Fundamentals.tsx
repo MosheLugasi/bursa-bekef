@@ -325,7 +325,7 @@ export function Fundamentals({ id, date }: { id: string; date: ISODate }) {
           )}
         </>
       )}
-      {typeof f.info.longBusinessSummary === 'string' && profile.ageGroup !== 'kid' && (
+      {typeof f.info.longBusinessSummary === 'string' && profile.ageGroup !== 'kid' && daysBetween(date, market.asOf) <= 7 && (
         <details className="rounded-xl bg-slate-50 p-3 text-sm">
           <summary className="cursor-pointer font-semibold">🇺🇸 תיאור רשמי של החברה (באנגלית)</summary>
           <p className="mt-2 text-slate-700" dir="ltr">

@@ -6,6 +6,7 @@ import { daysBetween } from '@/engine/dates';
 import { inst } from '@/engine/universe';
 import type { Profile } from '@/state/types';
 import { leagueOf } from './challenges';
+import { JOURNEY } from './journey';
 
 export interface AchCtx {
   profile: Profile;
@@ -133,6 +134,8 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: 'challenge-done', emoji: '🏁', title: 'סיימתי אתגר', desc: 'סיימו אתגר של מכונת הזמן', xp: 60, category: 'performance', check: (c) => c.mine.some((p) => p.finished) },
   { id: 'challenge-win', emoji: '🥇', title: 'גיבורי האתגר', desc: 'סיימו אתגר עם תשואה גבוהה מהמדד', xp: 120, category: 'performance', check: (c) => c.mine.some((p) => p.finished && ret(c, p) > benchmarkReturn(c.market, 'SPY', p)) },
   // ---- למידה
+  { id: 'journey-first', emoji: '🚩', title: 'יצאנו לדרך', desc: 'סיימו את התחנה הראשונה במסע של שורי', xp: 15, category: 'learning', check: (c) => Object.keys(c.profile.journey ?? {}).length >= 1 },
+  { id: 'journey-done', emoji: '🗺️', title: 'בוגרי המסע', desc: 'סיימו את כל התחנות במסע של שורי', xp: 60, category: 'learning', check: (c) => JOURNEY.every((s) => c.profile.journey?.[s.id]), progress: (c) => clamp(JOURNEY.filter((s) => c.profile.journey?.[s.id]).length / JOURNEY.length) },
   { id: 'first-lesson', emoji: '🎓', title: 'השיעור הראשון', desc: 'סיימו שיעור באקדמיה', xp: 20, category: 'learning', check: (c) => lessonsDone(c) >= 1 },
   { id: 'lessons-5', emoji: '📚', title: 'תלמידים חרוצים', desc: 'סיימו 5 שיעורים', xp: 50, category: 'learning', check: (c) => lessonsDone(c) >= 5, progress: (c) => clamp(lessonsDone(c) / 5) },
   { id: 'lessons-all', emoji: '🧑‍🎓', title: 'בוגרי האקדמיה', desc: 'סיימו את כל השיעורים', xp: 200, category: 'learning', check: (c) => lessonsDone(c) >= 20, progress: (c) => clamp(lessonsDone(c) / 20) },

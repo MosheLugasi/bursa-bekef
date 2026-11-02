@@ -2,11 +2,12 @@ import { useMemo, useState } from 'react';
 import { GLOSSARY, TERM_CATEGORIES } from '@/content';
 import { useCurrentProfile } from '@/state/store';
 import { useUI } from '@/state/ui';
-import { RichText } from '@/ui/components';
+import { RichText, useCoachOnce } from '@/ui/components';
 import { clsx } from '@/ui/format';
 import type { GlossaryTerm } from '@/content/types';
 
 export default function Glossary() {
+  useCoachOnce('glossary');
   const [q, setQ] = useState('');
   const [cat, setCat] = useState<GlossaryTerm['category'] | ''>('');
   const open = useUI((s) => s.openTerm);
