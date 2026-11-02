@@ -4,10 +4,32 @@ import { epochDayToISO, lastIndexLE, type ISODate } from './dates';
 
 export type Currency = 'USD' | 'ILS';
 
+/** סדרה מקודדת: מספרים שלמים (×k), כל ערך הוא הפרש מהערך הקודם שאינו null */
+export interface EncodedSeries {
+  k: number;
+  d: (number | null)[];
+}
+
+export function decodeSeries(x: (number | null)[] | EncodedSeries): (number | null)[] {
+  if (Array.isArray(x)) return x;
+  const out: (number | null)[] = new Array(x.d.length);
+  let prev: number | null = null;
+  for (let i = 0; i < x.d.length; i++) {
+    const v = x.d[i];
+    if (v === null || v === undefined) {
+      out[i] = null;
+      continue;
+    }
+    prev = prev === null ? v : prev + v;
+    out[i] = prev / x.k;
+  }
+  return out;
+}
+
 export interface OverviewFile {
-  v: 1;
+  v: 1 | 2;
   t: number[]; // ימי אפוק (ימים מאז 1970-01-01) – לוח שנה משותף לכל הנכסים
-  s: Record<string, (number | null)[]>; // מחירי סגירה גולמיים לפי מזהה נכס/מאקרו
+  s: Record<string, (number | null)[] | EncodedSeries>; // מחירי סגירה גולמיים לפי מזהה נכס/מאקרו (v2: מקודד)
   splits: Record<string, [number, number][]>; // [יום, יחס פיצול]
   divs: Record<string, [number, number][]>; // [יום אקס, סכום למניה]
 }
@@ -84,7 +106,8 @@ export class MarketData {
     this.first = this.dates[0];
     this.asOf = manifest.asOf || this.dates[this.dates.length - 1];
     const n = this.dates.length;
-    for (const [id, arr] of Object.entries(overview.s)) {
+    for (const [id, enc] of Object.entries(overview.s)) {
+      const arr = decodeSeries(enc);
       const raw = new Float64Array(n).fill(NaN);
       const ff = new Float64Array(n).fill(NaN);
       let last = NaN;

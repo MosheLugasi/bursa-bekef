@@ -373,10 +373,10 @@ def _gnews(query: str, lang: str, max_items: int) -> list[dict]:
     return out[:max_items]
 
 
-def fetch_news(inst: dict) -> list[dict]:
+def fetch_news(inst: dict, english: bool = True) -> list[dict]:
     """כותרות אחרונות מ-Google News: בעברית לכל חברה, ובאנגלית גם לחברות אמריקאיות."""
     queries = [(f"{_clean_name(inst['nameHe'])} מניה", "he", 5)]
-    if inst["market"] == "US":
+    if inst["market"] == "US" and english:
         queries.append((f"{_clean_name(inst['nameEn'])} stock", "en", 3))
     out = []
     for q, lang, n in queries:
@@ -468,6 +468,39 @@ def translate_news(items: list[dict], cache: dict[str, dict]) -> None:
 
 
 # ---------------------------------------------------------------- main
+
+def encode_series(arr: list) -> dict:
+    """קידוד דחוס: מספרים שלמים (×k) כהפרש מהערך הקודם; null נשמר. חוסך כ-50% בגודל הקובץ."""
+    vals = [v for v in arr if v is not None]
+    # הסקאלה הקטנה ביותר ששומרת על הדיוק (רוב המחירים צריכים רק אגורות/סנטים)
+    k = 10000
+    for cand in (100, 1000):
+        if all(abs(v * cand - round(v * cand)) < 1e-6 for v in vals):
+            k = cand
+            break
+    out, prev = [], None
+    for v in arr:
+        if v is None:
+            out.append(None)
+            continue
+        iv = int(round(v * k))
+        out.append(iv if prev is None else iv - prev)
+        prev = iv
+    return {"k": k, "d": out}
+
+
+def decode_series(obj) -> list:
+    if isinstance(obj, list):
+        return obj
+    k, out, prev = obj["k"], [], None
+    for x in obj["d"]:
+        if x is None:
+            out.append(None)
+            continue
+        prev = x if prev is None else prev + x
+        out.append(prev / k)
+    return out
+
 def load_json(p: Path, default=None):
     try:
         return json.loads(p.read_text(encoding="utf-8"))
@@ -501,6 +534,8 @@ def main() -> int:
     ap.add_argument("--out", default="public/data")
     ap.add_argument("--cache", default="data-cache")
     ap.add_argument("--fund-days", type=int, default=7, help="כל כמה ימים לרענן דוחות כספיים")
+    ap.add_argument("--fund-max", type=int, default=170, help="מקסימום חברות לרענון דוחות בריצה אחת")
+    ap.add_argument("--news-rotate", type=int, default=45, help="כמה מניות לא-מרכזיות מקבלות חדשות בכל ריצה")
     ap.add_argument("--only", default="", help="רשימת ids מופרדת בפסיקים (לבדיקות)")
     args = ap.parse_args()
     out = Path(args.out)
@@ -550,7 +585,7 @@ def main() -> int:
     for key in UNIVERSE["macro"]:
         if key not in macro and key in (old_ov.get("s") or {}):
             t = old_ov["t"]
-            macro[key] = {EPOCH + dt.timedelta(days=t[i]): v for i, v in enumerate(old_ov["s"][key]) if v is not None}
+            macro[key] = {EPOCH + dt.timedelta(days=t[i]): v for i, v in enumerate(decode_series(old_ov["s"][key])) if v is not None}
             log(f"  ~ מאקרו {key}: מהריצה הקודמת")
 
     # 3) לוח שנה משותף
@@ -576,9 +611,9 @@ def main() -> int:
 
     as_of = cal[-1]
     overview = {
-        "v": 1,
+        "v": 2,
         "t": [epoch_day(d) for d in cal],
-        "s": s,
+        "s": {key: encode_series(arr) for key, arr in s.items()},
         "splits": {iid: [[epoch_day(d), r_] for d, r_ in r["splits"] if d >= start] for iid, r in results.items() if r["splits"]},
         "divs": {iid: [[epoch_day(d), a] for d, a in r["divs"] if d >= start] for iid, r in results.items() if r["divs"]},
     }
@@ -593,20 +628,35 @@ def main() -> int:
     log("== דוחות כספיים ==")
     has_fund: set[str] = set()
     today = dt.date.today()
-    for inst in instruments:
-        if inst["type"] != "stock" or inst["id"] not in results:
-            continue
-        prev = load_json(cache / "fund" / f"{inst['id']}.json")
-        fresh = prev and prev.get("updated") and (today - dt.date.fromisoformat(prev["updated"])).days < args.fund_days
-        data = prev if fresh else None
-        if not data:
-            try:
-                data = fetch_fundamentals(inst)
-                log(f"  ✓ {inst['id']}: {len(data['annual'])} שנים, {len(data['quarterly'])} רבעונים")
-                time.sleep(0.5)
-            except Exception as e:  # noqa: BLE001
-                log(f"  ! {inst['id']}: {e}")
-                data = prev
+    stocks = [i for i in instruments if i["type"] == "stock" and i["id"] in results]
+    prev_fund: dict[str, dict | None] = {i["id"]: load_json(cache / "fund" / f"{i['id']}.json") for i in stocks}
+
+    def age(iid: str) -> int:
+        p_ = prev_fund.get(iid)
+        if not p_ or not p_.get("updated"):
+            return 10_000
+        return (today - dt.date.fromisoformat(p_["updated"])).days
+
+    # מרעננים קודם את מה שחסר/ישן ביותר, עם תקרה לריצה (כדי לא לחרוג מזמן הריצה ולא להיחסם)
+    stale = sorted([i for i in stocks if age(i["id"]) >= args.fund_days], key=lambda i: -age(i["id"]))[: args.fund_max]
+    log(f"  מרעננים {len(stale)} מתוך {len(stocks)} (תקרה {args.fund_max})")
+
+    def fund_work(inst):
+        try:
+            return inst["id"], fetch_fundamentals(inst), None
+        except Exception as e:  # noqa: BLE001
+            return inst["id"], None, e
+
+    fresh_fund: dict[str, dict] = {}
+    with ThreadPoolExecutor(max_workers=3) as ex:
+        for iid, data, err in ex.map(fund_work, stale):
+            if data:
+                fresh_fund[iid] = data
+                log(f"  ✓ {iid}: {len(data['annual'])} שנים, {len(data['quarterly'])} רבעונים")
+            else:
+                log(f"  ! {iid}: {err}")
+    for inst in stocks:
+        data = fresh_fund.get(inst["id"]) or prev_fund.get(inst["id"])
         if data and (data.get("annual") or data.get("info")):
             write_json(out / "fund" / f"{inst['id']}.json", data)
             has_fund.add(inst["id"])
@@ -616,10 +666,16 @@ def main() -> int:
     news_cache = load_json(cache / "news.json", {}) or {}
     he_cache: dict[str, dict] = load_json(cache / "news-he-cache.json", {}) or {}
     all_items: dict[str, dict] = {it["id"]: it for it in news_cache.get("items", [])}
-    for inst in instruments:
-        if inst["type"] != "stock":
-            continue
-        for it in fetch_news(inst):
+    # חדשות: המניות ה"מוכרות" (core) בכל יום, ושאר המניות ברוטציה (כמה עשרות ביום) – כדי לא להיחסם
+    stock_list = [i for i in instruments if i["type"] == "stock"]
+    core = [i for i in stock_list if i.get("core")]
+    rest = [i for i in stock_list if not i.get("core")]
+    if rest:
+        start_ = (dt.date.today().toordinal() * args.news_rotate) % len(rest)
+        rest = (rest + rest)[start_ : start_ + args.news_rotate]
+    log(f"  חדשות עבור {len(core)} מניות מרכזיות + {len(rest)} ברוטציה")
+    for inst in core + rest:
+        for it in fetch_news(inst, english=bool(inst.get("core"))):
             if it["id"] in all_items:
                 tk = set(all_items[it["id"]]["tickers"]) | set(it["tickers"])
                 all_items[it["id"]]["tickers"] = sorted(tk)
@@ -628,7 +684,7 @@ def main() -> int:
     cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=45)).isoformat()
     items = [it for it in all_items.values() if (it.get("time") or "") >= cutoff[:10]]
     items.sort(key=lambda it: it.get("time") or "", reverse=True)
-    items = items[:400]
+    items = items[:900]
     try:
         translate_news(items, he_cache)
     except Exception as e:  # noqa: BLE001 – תרגום הוא תוספת; לעולם לא מפיל את עדכון הנתונים

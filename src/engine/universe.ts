@@ -15,6 +15,10 @@ export interface Instrument {
   israeli?: boolean;
   benchmark?: boolean;
   indexScale?: number;
+  /** מותג מוכר לילדים (הרשימה המקורית) */
+  core?: boolean;
+  /** דירוג לפי שווי שוק בתוך השוק שלו (1 = הגדולה ביותר) */
+  rank?: number;
 }
 
 export interface Sector {
@@ -43,10 +47,13 @@ export function sectorOf(id: string): Sector | undefined {
   return i ? SECTORS[i.sector] : undefined;
 }
 
-export function peers(id: string): Instrument[] {
+/** חברות מאותו סקטור להשוואה: קודם מאותו שוק, ואז הגדולות ביותר (עד max) */
+export function peers(id: string, max = 8): Instrument[] {
   const i = byId.get(id);
   if (!i) return [];
-  return INSTRUMENTS.filter((x) => x.sector === i.sector && x.id !== id);
+  return INSTRUMENTS.filter((x) => x.sector === i.sector && x.id !== id && x.type === i.type)
+    .sort((a, b) => Number(b.market === i.market) - Number(a.market === i.market) || (a.rank ?? 999) - (b.rank ?? 999))
+    .slice(0, max);
 }
 
 export const US_BENCHMARK = 'SPY';

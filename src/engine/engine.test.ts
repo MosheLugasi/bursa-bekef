@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MarketData, type OverviewFile } from './market';
+import { MarketData, decodeSeries, type OverviewFile } from './market';
 import { isoToEpochDay, addDays, thirdFriday } from './dates';
 import { blackScholes, bondPricePer100, quoteNewBond, bondProduct, availableExpiries, strikeGrid, curveYield } from './finance';
 import { executeBuy, executeSell, placeLimitOrder, setProtection, buyBond, buyOption, valuate, maxQtyForAmount, sellBond } from './trading';
@@ -63,6 +63,13 @@ function newPortfolio(date = '2020-01-01', base: 'ILS' | 'USD' = 'ILS', cash = 1
     counters: { dividends: 0, coupons: 0, fees: 0, stopLossHits: 0, takeProfitHits: 0, limitFills: 0 }
   };
 }
+
+describe('encoding', () => {
+  it('decodes delta-encoded series with gaps', () => {
+    expect(decodeSeries({ k: 100, d: [12345, 5, null, -10, null] })).toEqual([123.45, 123.5, null, 123.4, null]);
+    expect(decodeSeries([1, null, 2])).toEqual([1, null, 2]);
+  });
+});
 
 describe('dates', () => {
   it('third friday', () => {

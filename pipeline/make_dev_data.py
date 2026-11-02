@@ -250,7 +250,7 @@ def fake_fred(series: str):
     return out
 
 
-def fake_news(inst):
+def fake_news(inst, **_kw):
     now = dt.datetime.now(dt.timezone.utc)
     out = []
     for k in range(2):

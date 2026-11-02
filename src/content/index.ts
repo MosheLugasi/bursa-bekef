@@ -1,12 +1,12 @@
-import { COMPANIES_US } from './companies-us';
-import { COMPANIES_IL } from './companies-il';
 import { GLOSSARY } from './glossary';
 import { LESSONS } from './lessons';
 import { QUIZ_BANK } from './quizbank';
 import { EVENTS } from './events';
 import type { CompanyProfile, GlossaryTerm, Lesson, MarketEvent } from './types';
 
-export const COMPANIES: Record<string, CompanyProfile> = { ...COMPANIES_US, ...COMPANIES_IL };
+// כל קבצי companies-*.ts נטענים אוטומטית (אין צורך לרשום קובץ חדש)
+const companyModules = import.meta.glob<Record<string, Record<string, CompanyProfile>>>('./companies-*.ts', { eager: true });
+export const COMPANIES: Record<string, CompanyProfile> = Object.assign({}, ...Object.values(companyModules).flatMap((m) => Object.values(m)));
 export const TERMS: Record<string, GlossaryTerm> = Object.fromEntries(GLOSSARY.map((t) => [t.id, t]));
 export { GLOSSARY, LESSONS, QUIZ_BANK, EVENTS };
 

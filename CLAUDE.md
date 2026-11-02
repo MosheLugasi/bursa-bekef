@@ -22,7 +22,8 @@ Hebrew (RTL) educational paper-trading game for kids 7+ and beginner adults. Sta
 - All UI text in Hebrew, gender-neutral plural ("אתם"), Hebrew punctuation ״ ׳. Numbers/prices wrapped with `.num` (LTR isolate).
 - Mobile-first: test at 390px width; bottom nav on mobile, side nav ≥ md.
 - Educational, never investment advice. Don't invent financial figures in content.
-- Adding an instrument: add to `src/content/universe.json` (Yahoo symbol; TASE `.TA` prices are in agorot and converted automatically) + a profile in `companies-us.ts`/`companies-il.ts`.
+- Adding an instrument: add to `src/content/universe.json` (Yahoo symbol; TASE `.TA` prices are in agorot and converted automatically) + a profile in one of `companies-*.ts` (merged in `content/index.ts`). Stocks carry `rank` (market-cap rank within its market, ranked Nov 2026 via `pipeline/research` on the `diag/rank` branch) and `core: true` for kid-familiar brands (always get daily news; others rotate).
+- Data size: `closes.json` v2 delta-encodes each series (`{k, d}`); keep the universe around ~220 instruments unless lazy loading is added.
 
 ## Deployment
 Push to `main` → workflow fetches data (cache on orphan branch `data`), runs tests, builds with `BASE_PATH=/<repo>/`, deploys to Pages. Daily cron 22:40 UTC Mon–Fri. Optional: secret `ANTHROPIC_API_KEY` (Hebrew news summaries via Claude), variables `SUPABASE_URL`/`SUPABASE_ANON_KEY` (cloud sync).

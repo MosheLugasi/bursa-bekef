@@ -18,6 +18,7 @@ export default function Market() {
   const [q, setQ] = useState('');
   const [sector, setSector] = useState<string>('');
   const [sort, setSort] = useState<'default' | 'up' | 'down' | 'name'>('default');
+  const [familiar, setFamiliar] = useState(false);
   useCoachOnce('market');
 
   const rows = useMemo(() => {
@@ -29,15 +30,17 @@ export default function Market() {
     else if (tab === 'funds') list = list.filter((i) => i.type !== 'stock');
     else list = list.filter((i) => i.type === 'stock' && i.market === tab);
     if (sector) list = list.filter((i) => i.sector === sector);
+    if (familiar) list = list.filter((i) => i.core || i.type !== 'stock');
     const out = list.map((i) => {
       const avail = market.available(i.id, date);
       return { i, avail, price: avail ? market.price(i.id, date) : NaN, ch: avail ? market.dayChange(i.id, date) : NaN, spark: avail ? market.spark(i.id, date, 30) : [] };
     });
+    if (sort === 'default') out.sort((a, b) => (a.i.rank ?? 999) - (b.i.rank ?? 999));
     if (sort === 'up') out.sort((a, b) => (b.ch || -9) - (a.ch || -9));
     if (sort === 'down') out.sort((a, b) => (a.ch || 9) - (b.ch || 9));
     if (sort === 'name') out.sort((a, b) => a.i.nameHe.localeCompare(b.i.nameHe, 'he'));
     return out;
-  }, [q, tab, sector, sort, market, date, profile.watchlist]);
+  }, [q, tab, sector, sort, familiar, market, date, profile.watchlist]);
 
   const sectors = useMemo(() => {
     const ids = new Set(INSTRUMENTS.filter((i) => (tab === 'funds' ? i.type !== 'stock' : tab === 'watch' ? true : i.type === 'stock' && i.market === tab)).map((i) => i.sector));
@@ -68,6 +71,11 @@ export default function Market() {
         ]}
       />
       <div className="flex gap-2 overflow-x-auto no-scrollbar">
+        {tab !== 'funds' && (
+          <button className={clsx('chip', familiar && 'chip-on')} onClick={() => setFamiliar(!familiar)} title="חברות שילדים מכירים">
+            🧒 מוכרות
+          </button>
+        )}
         <button className={clsx('chip', !sector && 'chip-on')} onClick={() => setSector('')}>
           הכל
         </button>
@@ -81,7 +89,7 @@ export default function Market() {
         <span className="text-slate-500">מיון:</span>
         {(
           [
-            ['default', 'רגיל'],
+            ['default', 'הגדולות קודם'],
             ['up', '▲ עלו הכי הרבה'],
             ['down', '▼ ירדו הכי הרבה'],
             ['name', 'א-ב']
@@ -112,6 +120,7 @@ export default function Market() {
                 {i.nameHe} {i.israeli && <span title="חברה ישראלית">🇮🇱</span>}
               </span>
               <span className="block text-xs text-slate-500 truncate">
+                {i.rank && <span className="text-slate-400">#{i.rank} · </span>}
                 <span dir="ltr">{i.id.replace('.TA', '')}</span> · {SECTORS[i.sector]?.nameHe}
               </span>
             </span>
