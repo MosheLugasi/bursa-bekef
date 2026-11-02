@@ -10,3 +10,4 @@ __pycache__/
 # נתוני שוק נוצרים ב-GitHub Actions (או נתוני פיתוח סינתטיים מקומית)
 public/data/
 agent-briefs/
+tsconfig.tsbuildinfo
