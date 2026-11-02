@@ -468,6 +468,34 @@ def translate_news(items: list[dict], cache: dict[str, dict]) -> None:
 
 
 # ---------------------------------------------------------------- main
+
+def encode_series(arr: list) -> dict:
+    """קידוד דחוס: מספרים שלמים (×k) כהפרש מהערך הקודם; null נשמר. חוסך כ-50% בגודל הקובץ."""
+    vals = [v for v in arr if v is not None]
+    k = 10000 if vals and min(abs(v) for v in vals) < 20 else 100
+    out, prev = [], None
+    for v in arr:
+        if v is None:
+            out.append(None)
+            continue
+        iv = int(round(v * k))
+        out.append(iv if prev is None else iv - prev)
+        prev = iv
+    return {"k": k, "d": out}
+
+
+def decode_series(obj) -> list:
+    if isinstance(obj, list):
+        return obj
+    k, out, prev = obj["k"], [], None
+    for x in obj["d"]:
+        if x is None:
+            out.append(None)
+            continue
+        prev = x if prev is None else prev + x
+        out.append(prev / k)
+    return out
+
 def load_json(p: Path, default=None):
     try:
         return json.loads(p.read_text(encoding="utf-8"))
@@ -550,7 +578,7 @@ def main() -> int:
     for key in UNIVERSE["macro"]:
         if key not in macro and key in (old_ov.get("s") or {}):
             t = old_ov["t"]
-            macro[key] = {EPOCH + dt.timedelta(days=t[i]): v for i, v in enumerate(old_ov["s"][key]) if v is not None}
+            macro[key] = {EPOCH + dt.timedelta(days=t[i]): v for i, v in enumerate(decode_series(old_ov["s"][key])) if v is not None}
             log(f"  ~ מאקרו {key}: מהריצה הקודמת")
 
     # 3) לוח שנה משותף
@@ -576,9 +604,9 @@ def main() -> int:
 
     as_of = cal[-1]
     overview = {
-        "v": 1,
+        "v": 2,
         "t": [epoch_day(d) for d in cal],
-        "s": s,
+        "s": {key: encode_series(arr) for key, arr in s.items()},
         "splits": {iid: [[epoch_day(d), r_] for d, r_ in r["splits"] if d >= start] for iid, r in results.items() if r["splits"]},
         "divs": {iid: [[epoch_day(d), a] for d, a in r["divs"] if d >= start] for iid, r in results.items() if r["divs"]},
     }

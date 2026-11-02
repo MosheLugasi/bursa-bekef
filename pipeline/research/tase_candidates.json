@@ -1,13 +1,1185 @@
 [
-["LUMI.TA","בנק לאומי","Bank Leumi","finance","🏦"],["POLI.TA","בנק הפועלים","Bank Hapoalim","finance","🏦"],["DSCT.TA","בנק דיסקונט","Israel Discount Bank","finance","🏦"],["MZTF.TA","בנק מזרחי טפחות","Mizrahi Tefahot","finance","🏦"],["FIBI.TA","הבנק הבינלאומי","First International Bank","finance","🏦"],["JBNK.TA","בנק ירושלים","Bank of Jerusalem","finance","🏦"],
-["PHOE.TA","הפניקס","Phoenix Holdings","finance","🔥"],["HARL.TA","הראל השקעות","Harel Insurance","finance","🛡️"],["CLIS.TA","כלל ביטוח","Clal Insurance","finance","🛡️"],["MMHD.TA","מנורה מבטחים","Menora Mivtachim","finance","🛡️"],["MGDL.TA","מגדל ביטוח","Migdal Insurance","finance","🛡️"],["AYAL.TA","איילון ביטוח","Ayalon Insurance","finance","🛡️"],
-["ISCD.TA","ישראכרט","Isracard","finance","💳"],["TASE.TA","הבורסה לניירות ערך","Tel Aviv Stock Exchange","finance","📊"],["IBI.TA","אי.בי.אי בית השקעות","IBI Investment House","finance","💼"],["ALTF.TA","אלטשולר שחם","Altshuler Shaham","finance","💼"],["MTAV.TA","מיטב בית השקעות","Meitav Investment House","finance","💼"],["MORE.TA","מור השקעות","More Investment House","finance","💼"],["OPAL.TA","אופל באלנס","Opal Balance","finance","💳"],
-["ILCO.TA","החברה לישראל","Israel Corp","materials","🏢"],["KEN.TA","קנון","Kenon Holdings","energy","⚡"],["DLEKG.TA","קבוצת דלק","Delek Group","energy","⛽"],["ELRN.TA","אלרון","Elron","tech","🧪"],["EQTL.TA","אקויטל","Equital","energy","🏢"],["ALRPR.TA","אלרוב","Alrov","realestate","🏨"],["LAPD.TA","לפידות כלל","Lapidoth","energy","🛠️"],
-["NICE.TA","נייס","NICE","tech","🎧"],["TSEM.TA","טאואר סמיקונדקטור","Tower Semiconductor","tech","🔬"],["ESLT.TA","אלביט מערכות","Elbit Systems","industry","🛰️"],["NVMI.TA","נובה","Nova","tech","🔭"],["CAMT.TA","קמטק","Camtek","tech","🔍"],["HLAN.TA","חילן","Hilan","tech","🧾"],["FORTY.TA","פורמולה מערכות","Formula Systems","tech","🧮"],["MTRX.TA","מטריקס","Matrix IT","tech","🖥️"],["ONE.TA","וואן טכנולוגיות","One Technologies","tech","🖥️"],["MLTM.TA","מלם תים","Malam Team","tech","🖥️"],["NXSN.TA","נקסט ויז׳ן","Next Vision","industry","🎥"],["AUDC.TA","אודיוקודס","AudioCodes","tech","☎️"],["GILT.TA","גילת","Gilat Satellite","tech","📡"],["ARYT.TA","ארית תעשיות","Aryt Industries","industry","💥"],["TATT.TA","טאט טכנולוגיות","TAT Technologies","industry","✈️"],["BSEN.TA","בית שמש מנועים","Bet Shemesh Engines","industry","⚙️"],["ALLT.TA","אלוט","Allot","tech","🛡️"],["MGIC.TA","מג׳יק","Magic Software","tech","🪄"],["DANE.TA","דנאל","Danel","health","🤝"],["PRTC.TA","פריורטק","Priortech","tech","🔬"],["NYAX.TA","נייקס","Nayax","tech","💳"],["PERI.TA","פריון","Perion","tech","📢"],["ITRN.TA","איתוראן","Ituran","tech","📍"],["CYBR.TA","סייברארק","CyberArk","tech","🔐"],["SPNS.TA","ספיינס","Sapiens","tech","🧩"],
-["TEVA.TA","טבע","Teva","health","💊"],["KMDA.TA","קמדע","Kamada","health","💉"],["NVLG.TA","נובולוג","Novolog","health","🩺"],
-["NWMD.TA","ניו-מד אנרג׳י","NewMed Energy","energy","⛽"],["ORL.TA","בזן","Bazan","energy","🏭"],["PZOL.TA","פז","Paz","energy","⛽"],["ORA.TA","אורמת","Ormat","energy","🌋"],["ENLT.TA","אנלייט","Enlight","energy","☀️"],["ENRG.TA","אנרג׳יקס","Energix","energy","🌬️"],["DORL.TA","דוראל","Doral Energy","energy","☀️"],["NOFR.TA","נופר אנרג׳י","Nofar Energy","energy","☀️"],["OPCE.TA","או.פי.סי אנרגיה","OPC Energy","energy","⚡"],["RATI.TA","רציו","Ratio Energies","energy","⛽"],["ISRA.TA","ישראמקו","Isramco Negev 2","energy","⛽"],["ENOG.TA","אנרג׳יאן","Energean","energy","⛽"],["NVPT.TA","נאוויטס","Navitas Petroleum","energy","🛢️"],["MSKE.TA","משק אנרגיה","Meshek Energy","energy","⚡"],["ELLO.TA","אלומיי","Ellomay","energy","☀️"],
-["AZRG.TA","קבוצת עזריאלי","Azrieli","realestate","🏙️"],["MLSR.TA","מליסרון","Melisron","realestate","🛍️"],["AMOT.TA","אמות","Amot","realestate","🏢"],["BIG.TA","ביג מרכזי קניות","BIG Shopping Centers","realestate","🛍️"],["ALHE.TA","אלוני חץ","Alony Hetz","realestate","🏢"],["GVYM.TA","גב-ים","Gav-Yam","realestate","🏢"],["AFRE.TA","אפריקה מגורים","Africa Israel Residences","realestate","🏠"],["AURA.TA","אאורה","Aura Investments","realestate","🏠"],["ISCN.TA","ישראל קנדה","Israel Canada","realestate","🏠"],["RIT1.TA","ריט 1","Reit 1","realestate","🏢"],["SLARL.TA","סלע נדל״ן","Sella Real Estate","realestate","🏢"],["MVNE.TA","מבנה","Mivne","realestate","🏢"],["ELCRE.TA","אלקטרה נדל״ן","Electra Real Estate","realestate","🏢"],["ACRO.TA","אקרו","Acro","realestate","🏠"],["PRSK.TA","פרשקובסקי","Prashkovsky","realestate","🏠"],["DIMRI.TA","דמרי","Y.H. Dimri","realestate","🏠"],["ISRS.TA","ישרס","Isras","realestate","🏢"],["ARPT.TA","איירפורט סיטי","Airport City","realestate","🏢"],["SKBN.TA","שיכון ובינוי","Shikun & Binui","realestate","🏗️"],["ASHG.TA","אשטרום","Ashtrom","realestate","🏗️"],["SPEN.TA","שפיר הנדסה","Shapir Engineering","industry","🏗️"],["DNYA.TA","דניה סיבוס","Danya Cebus","realestate","🏗️"],["SMT.TA","סאמיט","Summit","realestate","🏢"],["BLSR.TA","ריבוע כחול נדל״ן","Blue Square Real Estate","realestate","🏢"],["ILDC.TA","מבני תעשייה","Israel Land Development","realestate","🏢"],["HGG.TA","חג׳ג׳","Hagag","realestate","🏠"],["MGOR.TA","מגה אור","Mega Or","realestate","🏬"],["GCT.TA","ג׳י סיטי","G City","realestate","🏬"],["PTBL.TA","נכסים ובנין","Property & Building","realestate","🏢"],
-["SAE.TA","שופרסל","Shufersal","retail","🛒"],["RMLI.TA","רמי לוי","Rami Levy","retail","🛍️"],["MAXO.TA","מקס סטוק","Max Stock","retail","🧺"],["FOX.TA","פוקס-ויזל","Fox-Wizel","retail","👕"],["DELG.TA","דלתא גליל","Delta Galil","retail","🧦"],["STRS.TA","שטראוס","Strauss","food","🍫"],["YHNF.TA","מ. יוחננוף","M. Yochananof","retail","🛒"],["NTML.TA","נטו מלינדה","Neto Malinda","food","🧀"],["WILF.TA","ויליפוד","Willi-Food","food","🥫"],["CAST.TA","קסטרו","Castro","retail","👗"],["GOLF.TA","גולף","Golf","retail","🛋️"],["DLEA.TA","דלק רכב","Delek Automotive","auto","🚙"],["CRSO.TA","כרסו מוטורס","Carasso Motors","auto","🚘"],["ECP.TA","אלקטרה מוצרי צריכה","Electra Consumer Products","retail","❄️"],["ELCO.TA","אלקו","Elco","industry","🏭"],["ELTR.TA","אלקטרה","Electra","industry","🔌"],["TDRN.TA","תדיראן גרופ","Tadiran Group","retail","❄️"],["FTAL.TA","פתאל","Fattal Hotels","entertainment","🏨"],["ISRO.TA","ישרוטל","Isrotel","entertainment","🏨"],["DPLM.TA","דיפלומט","Diplomat","food","📦"],["RTLS.TA","ריטיילורס","Retailors","retail","👟"],
-["BEZQ.TA","בזק","Bezeq","telecom","☎️"],["PTNR.TA","פרטנר","Partner","telecom","📱"],["CEL.TA","סלקום","Cellcom","telecom","📶"],
-["ICL.TA","כיל","ICL Group","materials","🧪"],["PLSN.TA","פלסאון","Plasson","materials","🧴"],["ELAL.TA","אל על","El Al","industry","🛫"],["ISHI.TA","מספנות ישראל","Israel Shipyards","industry","🚢"],["ASHO.TA","אשות אשקלון","Ashot Ashkelon","industry","⚙️"]
+[
+"LUMI.TA",
+"בנק לאומי",
+"Bank Leumi",
+"finance",
+"🏦"
+],
+[
+"POLI.TA",
+"בנק הפועלים",
+"Bank Hapoalim",
+"finance",
+"🏦"
+],
+[
+"DSCT.TA",
+"בנק דיסקונט",
+"Israel Discount Bank",
+"finance",
+"🏦"
+],
+[
+"MZTF.TA",
+"בנק מזרחי טפחות",
+"Mizrahi Tefahot",
+"finance",
+"🏦"
+],
+[
+"FIBI.TA",
+"הבנק הבינלאומי",
+"First International Bank",
+"finance",
+"🏦"
+],
+[
+"JBNK.TA",
+"בנק ירושלים",
+"Bank of Jerusalem",
+"finance",
+"🏦"
+],
+[
+"PHOE.TA",
+"הפניקס",
+"Phoenix Holdings",
+"finance",
+"🔥"
+],
+[
+"HARL.TA",
+"הראל השקעות",
+"Harel Insurance",
+"finance",
+"🛡️"
+],
+[
+"CLIS.TA",
+"כלל ביטוח",
+"Clal Insurance",
+"finance",
+"🛡️"
+],
+[
+"MMHD.TA",
+"מנורה מבטחים",
+"Menora Mivtachim",
+"finance",
+"🛡️"
+],
+[
+"MGDL.TA",
+"מגדל ביטוח",
+"Migdal Insurance",
+"finance",
+"🛡️"
+],
+[
+"AYAL.TA",
+"איילון ביטוח",
+"Ayalon Insurance",
+"finance",
+"🛡️"
+],
+[
+"ISCD.TA",
+"ישראכרט",
+"Isracard",
+"finance",
+"💳"
+],
+[
+"TASE.TA",
+"הבורסה לניירות ערך",
+"Tel Aviv Stock Exchange",
+"finance",
+"📊"
+],
+[
+"IBI.TA",
+"אי.בי.אי בית השקעות",
+"IBI Investment House",
+"finance",
+"💼"
+],
+[
+"ALTF.TA",
+"אלטשולר שחם",
+"Altshuler Shaham",
+"finance",
+"💼"
+],
+[
+"MTAV.TA",
+"מיטב בית השקעות",
+"Meitav Investment House",
+"finance",
+"💼"
+],
+[
+"MORE.TA",
+"מור השקעות",
+"More Investment House",
+"finance",
+"💼"
+],
+[
+"OPAL.TA",
+"אופל באלנס",
+"Opal Balance",
+"finance",
+"💳"
+],
+[
+"ILCO.TA",
+"החברה לישראל",
+"Israel Corp",
+"materials",
+"🏢"
+],
+[
+"KEN.TA",
+"קנון",
+"Kenon Holdings",
+"energy",
+"⚡"
+],
+[
+"DLEKG.TA",
+"קבוצת דלק",
+"Delek Group",
+"energy",
+"⛽"
+],
+[
+"ELRN.TA",
+"אלרון",
+"Elron",
+"tech",
+"🧪"
+],
+[
+"EQTL.TA",
+"אקויטל",
+"Equital",
+"energy",
+"🏢"
+],
+[
+"ALRPR.TA",
+"אלרוב",
+"Alrov",
+"realestate",
+"🏨"
+],
+[
+"LAPD.TA",
+"לפידות כלל",
+"Lapidoth",
+"energy",
+"🛠️"
+],
+[
+"NICE.TA",
+"נייס",
+"NICE",
+"tech",
+"🎧"
+],
+[
+"TSEM.TA",
+"טאואר סמיקונדקטור",
+"Tower Semiconductor",
+"tech",
+"🔬"
+],
+[
+"ESLT.TA",
+"אלביט מערכות",
+"Elbit Systems",
+"industry",
+"🛰️"
+],
+[
+"NVMI.TA",
+"נובה",
+"Nova",
+"tech",
+"🔭"
+],
+[
+"CAMT.TA",
+"קמטק",
+"Camtek",
+"tech",
+"🔍"
+],
+[
+"HLAN.TA",
+"חילן",
+"Hilan",
+"tech",
+"🧾"
+],
+[
+"FORTY.TA",
+"פורמולה מערכות",
+"Formula Systems",
+"tech",
+"🧮"
+],
+[
+"MTRX.TA",
+"מטריקס",
+"Matrix IT",
+"tech",
+"🖥️"
+],
+[
+"ONE.TA",
+"וואן טכנולוגיות",
+"One Technologies",
+"tech",
+"🖥️"
+],
+[
+"MLTM.TA",
+"מלם תים",
+"Malam Team",
+"tech",
+"🖥️"
+],
+[
+"NXSN.TA",
+"נקסט ויז׳ן",
+"Next Vision",
+"industry",
+"🎥"
+],
+[
+"AUDC.TA",
+"אודיוקודס",
+"AudioCodes",
+"tech",
+"☎️"
+],
+[
+"GILT.TA",
+"גילת",
+"Gilat Satellite",
+"tech",
+"📡"
+],
+[
+"ARYT.TA",
+"ארית תעשיות",
+"Aryt Industries",
+"industry",
+"💥"
+],
+[
+"TATT.TA",
+"טאט טכנולוגיות",
+"TAT Technologies",
+"industry",
+"✈️"
+],
+[
+"BSEN.TA",
+"בית שמש מנועים",
+"Bet Shemesh Engines",
+"industry",
+"⚙️"
+],
+[
+"ALLT.TA",
+"אלוט",
+"Allot",
+"tech",
+"🛡️"
+],
+[
+"MGIC.TA",
+"מג׳יק",
+"Magic Software",
+"tech",
+"🪄"
+],
+[
+"DANE.TA",
+"דנאל",
+"Danel",
+"health",
+"🤝"
+],
+[
+"PRTC.TA",
+"פריורטק",
+"Priortech",
+"tech",
+"🔬"
+],
+[
+"NYAX.TA",
+"נייקס",
+"Nayax",
+"tech",
+"💳"
+],
+[
+"PERI.TA",
+"פריון",
+"Perion",
+"tech",
+"📢"
+],
+[
+"ITRN.TA",
+"איתוראן",
+"Ituran",
+"tech",
+"📍"
+],
+[
+"CYBR.TA",
+"סייברארק",
+"CyberArk",
+"tech",
+"🔐"
+],
+[
+"SPNS.TA",
+"ספיינס",
+"Sapiens",
+"tech",
+"🧩"
+],
+[
+"TEVA.TA",
+"טבע",
+"Teva",
+"health",
+"💊"
+],
+[
+"KMDA.TA",
+"קמדע",
+"Kamada",
+"health",
+"💉"
+],
+[
+"NVLG.TA",
+"נובולוג",
+"Novolog",
+"health",
+"🩺"
+],
+[
+"NWMD.TA",
+"ניו-מד אנרג׳י",
+"NewMed Energy",
+"energy",
+"⛽"
+],
+[
+"ORL.TA",
+"בזן",
+"Bazan",
+"energy",
+"🏭"
+],
+[
+"PZOL.TA",
+"פז",
+"Paz",
+"energy",
+"⛽"
+],
+[
+"ORA.TA",
+"אורמת",
+"Ormat",
+"energy",
+"🌋"
+],
+[
+"ENLT.TA",
+"אנלייט",
+"Enlight",
+"energy",
+"☀️"
+],
+[
+"ENRG.TA",
+"אנרג׳יקס",
+"Energix",
+"energy",
+"🌬️"
+],
+[
+"DORL.TA",
+"דוראל",
+"Doral Energy",
+"energy",
+"☀️"
+],
+[
+"NOFR.TA",
+"נופר אנרג׳י",
+"Nofar Energy",
+"energy",
+"☀️"
+],
+[
+"OPCE.TA",
+"או.פי.סי אנרגיה",
+"OPC Energy",
+"energy",
+"⚡"
+],
+[
+"RATI.TA",
+"רציו",
+"Ratio Energies",
+"energy",
+"⛽"
+],
+[
+"ISRA.TA",
+"ישראמקו",
+"Isramco Negev 2",
+"energy",
+"⛽"
+],
+[
+"ENOG.TA",
+"אנרג׳יאן",
+"Energean",
+"energy",
+"⛽"
+],
+[
+"NVPT.TA",
+"נאוויטס",
+"Navitas Petroleum",
+"energy",
+"🛢️"
+],
+[
+"MSKE.TA",
+"משק אנרגיה",
+"Meshek Energy",
+"energy",
+"⚡"
+],
+[
+"ELLO.TA",
+"אלומיי",
+"Ellomay",
+"energy",
+"☀️"
+],
+[
+"AZRG.TA",
+"קבוצת עזריאלי",
+"Azrieli",
+"realestate",
+"🏙️"
+],
+[
+"MLSR.TA",
+"מליסרון",
+"Melisron",
+"realestate",
+"🛍️"
+],
+[
+"AMOT.TA",
+"אמות",
+"Amot",
+"realestate",
+"🏢"
+],
+[
+"BIG.TA",
+"ביג מרכזי קניות",
+"BIG Shopping Centers",
+"realestate",
+"🛍️"
+],
+[
+"ALHE.TA",
+"אלוני חץ",
+"Alony Hetz",
+"realestate",
+"🏢"
+],
+[
+"GVYM.TA",
+"גב-ים",
+"Gav-Yam",
+"realestate",
+"🏢"
+],
+[
+"AFRE.TA",
+"אפריקה מגורים",
+"Africa Israel Residences",
+"realestate",
+"🏠"
+],
+[
+"AURA.TA",
+"אאורה",
+"Aura Investments",
+"realestate",
+"🏠"
+],
+[
+"ISCN.TA",
+"ישראל קנדה",
+"Israel Canada",
+"realestate",
+"🏠"
+],
+[
+"RIT1.TA",
+"ריט 1",
+"Reit 1",
+"realestate",
+"🏢"
+],
+[
+"SLARL.TA",
+"סלע נדל״ן",
+"Sella Real Estate",
+"realestate",
+"🏢"
+],
+[
+"MVNE.TA",
+"מבנה",
+"Mivne",
+"realestate",
+"🏢"
+],
+[
+"ELCRE.TA",
+"אלקטרה נדל״ן",
+"Electra Real Estate",
+"realestate",
+"🏢"
+],
+[
+"ACRO.TA",
+"אקרו",
+"Acro",
+"realestate",
+"🏠"
+],
+[
+"PRSK.TA",
+"פרשקובסקי",
+"Prashkovsky",
+"realestate",
+"🏠"
+],
+[
+"DIMRI.TA",
+"דמרי",
+"Y.H. Dimri",
+"realestate",
+"🏠"
+],
+[
+"ISRS.TA",
+"ישרס",
+"Isras",
+"realestate",
+"🏢"
+],
+[
+"ARPT.TA",
+"איירפורט סיטי",
+"Airport City",
+"realestate",
+"🏢"
+],
+[
+"SKBN.TA",
+"שיכון ובינוי",
+"Shikun & Binui",
+"realestate",
+"🏗️"
+],
+[
+"ASHG.TA",
+"אשטרום",
+"Ashtrom",
+"realestate",
+"🏗️"
+],
+[
+"SPEN.TA",
+"שפיר הנדסה",
+"Shapir Engineering",
+"industry",
+"🏗️"
+],
+[
+"DNYA.TA",
+"דניה סיבוס",
+"Danya Cebus",
+"realestate",
+"🏗️"
+],
+[
+"SMT.TA",
+"סאמיט",
+"Summit",
+"realestate",
+"🏢"
+],
+[
+"BLSR.TA",
+"ריבוע כחול נדל״ן",
+"Blue Square Real Estate",
+"realestate",
+"🏢"
+],
+[
+"ILDC.TA",
+"מבני תעשייה",
+"Israel Land Development",
+"realestate",
+"🏢"
+],
+[
+"HGG.TA",
+"חג׳ג׳",
+"Hagag",
+"realestate",
+"🏠"
+],
+[
+"MGOR.TA",
+"מגה אור",
+"Mega Or",
+"realestate",
+"🏬"
+],
+[
+"GCT.TA",
+"ג׳י סיטי",
+"G City",
+"realestate",
+"🏬"
+],
+[
+"PTBL.TA",
+"נכסים ובנין",
+"Property & Building",
+"realestate",
+"🏢"
+],
+[
+"SAE.TA",
+"שופרסל",
+"Shufersal",
+"retail",
+"🛒"
+],
+[
+"RMLI.TA",
+"רמי לוי",
+"Rami Levy",
+"retail",
+"🛍️"
+],
+[
+"MAXO.TA",
+"מקס סטוק",
+"Max Stock",
+"retail",
+"🧺"
+],
+[
+"FOX.TA",
+"פוקס-ויזל",
+"Fox-Wizel",
+"retail",
+"👕"
+],
+[
+"DELG.TA",
+"דלתא גליל",
+"Delta Galil",
+"retail",
+"🧦"
+],
+[
+"STRS.TA",
+"שטראוס",
+"Strauss",
+"food",
+"🍫"
+],
+[
+"YHNF.TA",
+"מ. יוחננוף",
+"M. Yochananof",
+"retail",
+"🛒"
+],
+[
+"NTML.TA",
+"נטו מלינדה",
+"Neto Malinda",
+"food",
+"🧀"
+],
+[
+"WILF.TA",
+"ויליפוד",
+"Willi-Food",
+"food",
+"🥫"
+],
+[
+"CAST.TA",
+"קסטרו",
+"Castro",
+"retail",
+"👗"
+],
+[
+"GOLF.TA",
+"גולף",
+"Golf",
+"retail",
+"🛋️"
+],
+[
+"DLEA.TA",
+"דלק רכב",
+"Delek Automotive",
+"auto",
+"🚙"
+],
+[
+"CRSO.TA",
+"כרסו מוטורס",
+"Carasso Motors",
+"auto",
+"🚘"
+],
+[
+"ECP.TA",
+"אלקטרה מוצרי צריכה",
+"Electra Consumer Products",
+"retail",
+"❄️"
+],
+[
+"ELCO.TA",
+"אלקו",
+"Elco",
+"industry",
+"🏭"
+],
+[
+"ELTR.TA",
+"אלקטרה",
+"Electra",
+"industry",
+"🔌"
+],
+[
+"TDRN.TA",
+"תדיראן גרופ",
+"Tadiran Group",
+"retail",
+"❄️"
+],
+[
+"FTAL.TA",
+"פתאל",
+"Fattal Hotels",
+"entertainment",
+"🏨"
+],
+[
+"ISRO.TA",
+"ישרוטל",
+"Isrotel",
+"entertainment",
+"🏨"
+],
+[
+"DPLM.TA",
+"דיפלומט",
+"Diplomat",
+"food",
+"📦"
+],
+[
+"RTLS.TA",
+"ריטיילורס",
+"Retailors",
+"retail",
+"👟"
+],
+[
+"BEZQ.TA",
+"בזק",
+"Bezeq",
+"telecom",
+"☎️"
+],
+[
+"PTNR.TA",
+"פרטנר",
+"Partner",
+"telecom",
+"📱"
+],
+[
+"CEL.TA",
+"סלקום",
+"Cellcom",
+"telecom",
+"📶"
+],
+[
+"ICL.TA",
+"כיל",
+"ICL Group",
+"materials",
+"🧪"
+],
+[
+"PLSN.TA",
+"פלסאון",
+"Plasson",
+"materials",
+"🧴"
+],
+[
+"ELAL.TA",
+"אל על",
+"El Al",
+"industry",
+"🛫"
+],
+[
+"ISHI.TA",
+"מספנות ישראל",
+"Israel Shipyards",
+"industry",
+"🚢"
+],
+[
+"ASHO.TA",
+"אשות אשקלון",
+"Ashot Ashkelon",
+"industry",
+"⚙️"
+],
+[
+"AFPR.TA",
+"אפי נכסים",
+"AFI Properties",
+"realestate",
+"🏢"
+],
+[
+"MTRN.TA",
+"מיטרוניקס",
+"Maytronics",
+"tech",
+"🏊"
+],
+[
+"INRM.TA",
+"אינרום",
+"Inrom Construction",
+"industry",
+"🧱"
+],
+[
+"AZRM.TA",
+"אזורים",
+"Azorim",
+"realestate",
+"🏗️"
+],
+[
+"VCTR.TA",
+"ויקטורי",
+"Victory Supermarkets",
+"retail",
+"🛒"
+],
+[
+"KRUR.TA",
+"כרור אחזקות",
+"Kerur Holdings",
+"food",
+"🥤"
+],
+[
+"ARD.TA",
+"ארד",
+"Arad",
+"tech",
+"💧"
+],
+[
+"AVGL.TA",
+"אבגול",
+"Avgol",
+"materials",
+"🧻"
+],
+[
+"MDTR.TA",
+"מגדלי הים התיכון",
+"Mediterranean Towers",
+"health",
+"👵"
+],
+[
+"LVPR.TA",
+"לוינשטין נכסים",
+"Levinstein Properties",
+"realestate",
+"🏢"
+],
+[
+"ADGR.TA",
+"אדגר",
+"Adgar",
+"realestate",
+"🏢"
+],
+[
+"IDIN.TA",
+"איי.די.איי ביטוח",
+"IDI Insurance",
+"finance",
+"🛡️"
+],
+[
+"NFTA.TA",
+"נפטא",
+"Naphtha",
+"energy",
+"⛽"
+],
+[
+"HAP.TA",
+"חדרה נייר",
+"Hadera Paper",
+"materials",
+"📦"
+],
+[
+"CGEN.TA",
+"קומפיוג׳ן",
+"Compugen",
+"health",
+"🧬"
+],
+[
+"BVC.TA",
+"בטם",
+"BATM",
+"tech",
+"🧫"
+],
+[
+"ILX.TA",
+"אילקס מדיקל",
+"Ilex Medical",
+"health",
+"🩺"
+],
+[
+"AUGN.TA",
+"אוגווינד",
+"Augwind",
+"energy",
+"🔋"
+],
+[
+"ELWS.TA",
+"אלקטריאון",
+"Electreon",
+"energy",
+"🔌"
+],
+[
+"FIBIH.TA",
+"פיבי אחזקות",
+"FIBI Holdings",
+"finance",
+"🏦"
+],
+[
+"ATRY.TA",
+"אטריום? (אטריו)",
+"Atreyu",
+"finance",
+"💼"
+],
+[
+"BCNV.TA",
+"בראק קפיטל",
+"Brack Capital",
+"realestate",
+"🏢"
+],
+[
+"ASPR.TA",
+"אשטרום נכסים",
+"Ashtrom Properties",
+"realestate",
+"🏢"
+],
+[
+"ARAD.TA",
+"ארד השקעות",
+"Arad Investment",
+"tech",
+"💧"
+],
+[
+"TMRP.TA",
+"תמר פטרוליום",
+"Tamar Petroleum",
+"energy",
+"⛽"
+],
+[
+"TDGR.TA",
+"תדהר",
+"Tidhar",
+"realestate",
+"🏗️"
+],
+[
+"ROTS.TA",
+"רוטשטיין",
+"Rotshtein",
+"realestate",
+"🏠"
+],
+[
+"ISRA-L.TA",
+"ישראמקו נגב 2",
+"Isramco Negev 2",
+"energy",
+"⛽"
+],
+[
+"RATI-L.TA",
+"רציו (יה״ש)",
+"Ratio Oil",
+"energy",
+"⛽"
+],
+[
+"MTDS.TA",
+"מיטב דש",
+"Meitav Dash",
+"finance",
+"💼"
+],
+[
+"ASPF.TA",
+"אלטשולר שחם גמל",
+"Altshuler Shaham",
+"finance",
+"💼"
+],
+[
+"PAZ.TA",
+"פז (סימול חלופי)",
+"Paz",
+"energy",
+"⛽"
+],
+[
+"BYSD.TA",
+"בייסייד",
+"Bayside",
+"realestate",
+"🏢"
+],
+[
+"FRSM.TA",
+"פרש מרקט",
+"Fresh Market",
+"retail",
+"🛒"
+],
+[
+"MMAN.TA",
+"ממן",
+"Maman",
+"industry",
+"✈️"
+],
+[
+"KLIL.TA",
+"קליל",
+"Klil",
+"industry",
+"🪟"
+],
+[
+"TPGM.TA",
+"תפוגן",
+"Tefugen",
+"industry",
+"🧯"
+],
+[
+"GOLD.TA",
+"גולד בונד",
+"Gold Bond",
+"industry",
+"🚛"
+],
+[
+"SHFR.TA",
+"שפיר (חלופי)",
+"Shapir",
+"industry",
+"🏗️"
+],
+[
+"NSTR.TA",
+"נוסטרומו",
+"Nostromo",
+"energy",
+"⚡"
+],
+[
+"HLMS.TA",
+"הלמס",
+"Hilms",
+"realestate",
+"🏢"
+],
+[
+"UNCT.TA",
+"יוניטרוניקס",
+"Unitronics",
+"tech",
+"🤖"
+]
 ]

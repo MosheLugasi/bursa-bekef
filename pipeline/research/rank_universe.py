@@ -77,4 +77,3 @@ def tase():
 if __name__ == "__main__":
     print("yfinance", yf.__version__)
     tase()
-    sp500()
