@@ -652,6 +652,244 @@ function FirstTrade() {
   );
 }
 
+// ---------- תחנה: אג״ח
+function Lend() {
+  const move = (from: string, to: string, d = 0): CSSProperties => ({ ['--from' as string]: from, ['--to' as string]: to, ...delay(d) });
+  return (
+    <div className="h-full relative flex items-center justify-between px-5">
+      <div className="text-center z-10">
+        <Big className="text-6xl anim-bob">🧒</Big>
+        <Label className="mt-2">אתם</Label>
+      </div>
+      <div className="absolute inset-x-0 top-[22%] flex justify-center pointer-events-none">
+        <span className="anim-slide-x text-center" style={move('90px', '-90px')}>
+          <Big className="text-4xl">💵</Big>
+          <span className="block text-xs font-bold num">100 ₪</span>
+        </span>
+      </div>
+      <div className="absolute inset-x-0 top-[55%] flex justify-center pointer-events-none">
+        <span className="anim-slide-x text-center" style={move('-90px', '90px', 1.2)}>
+          <Big className="text-4xl">📜</Big>
+          <span className="block text-xs font-bold">פתק הלוואה</span>
+        </span>
+      </div>
+      <div className="text-center z-10">
+        <Big className="text-6xl anim-float">🏛️</Big>
+        <Label className="mt-2">מדינה / חברה</Label>
+      </div>
+    </div>
+  );
+}
+
+function Coupons() {
+  const [year, setYear] = useState(0);
+  const done = year === 5;
+  const got = year * 5 + (done ? 100 : 0);
+  useEffect(() => {
+    if (done) fireConfetti(false);
+  }, [done]);
+  return (
+    <div className="h-full flex flex-col justify-center gap-2 px-4">
+      <div className="flex justify-between items-end">
+        {[1, 2, 3, 4, 5].map((y) => (
+          <div key={y} className="flex flex-col items-center gap-1 w-14">
+            <div className="h-14 flex flex-col-reverse items-center">
+              {y <= year && (
+                <Big key={'c' + y} className="text-2xl anim-grow">
+                  🪙
+                </Big>
+              )}
+              {y === 5 && done && (
+                <Big className="text-2xl anim-grow" style={delay(0.25)}>
+                  💵
+                </Big>
+              )}
+            </div>
+            <div className={clsx('w-12 rounded-xl py-1.5 text-center text-xs font-bold transition', y <= year ? 'bg-amber-300' : 'bg-white/80')}>שנה {y}</div>
+          </div>
+        ))}
+      </div>
+      <div className={clsx('text-center font-bold', done ? 'text-emerald-700' : 'text-slate-700')}>
+        {done ? '🎉 יום הפדיון! קיבלתם בחזרה את ה-100 ₪' : 'כל שנה: 🪙 = 5 ₪ ״תודה״'}
+      </div>
+      <div className="text-center text-sm">
+        קיבלתם עד עכשיו: <span className="num font-extrabold text-emerald-700 text-lg">{got} ₪</span>
+      </div>
+      <button className="btn-primary mx-auto" onClick={() => setYear((y) => (y >= 5 ? 0 : y + 1))}>
+        {done ? '🔄 עוד פעם' : '⏭️ שנה הבאה'}
+      </button>
+    </div>
+  );
+}
+
+function WhoBorrows() {
+  const rows = [
+    { e: '🏛️', name: 'המדינה', risk: 1, thanks: 3 },
+    { e: '🏢', name: 'חברה גדולה', risk: 2, thanks: 5 },
+    { e: '🎲', name: 'חברה בצרות', risk: 3, thanks: 10 }
+  ];
+  const cols = 'grid grid-cols-[1fr_4.5rem_4.5rem] items-center gap-x-2';
+  return (
+    <div className="h-full flex flex-col justify-center gap-2 px-4">
+      <div className={clsx(cols, 'text-xs font-bold text-slate-600 px-3')}>
+        <span>מי לווה?</span>
+        <span className="text-center">סיכון</span>
+        <span className="text-center">״תודה״ בשנה</span>
+      </div>
+      {rows.map((r, i) => (
+        <div key={r.name} className={clsx(cols, 'rounded-2xl bg-white/90 shadow px-3 py-1.5 anim-fly-in')} style={delay(0.2 + i * 0.3)}>
+          <span className="font-bold whitespace-nowrap">
+            <span className="text-2xl align-middle">{r.e}</span> {r.name}
+          </span>
+          <span className="text-center text-sm">{'⚠️'.repeat(r.risk)}</span>
+          <span className="text-center num font-extrabold text-emerald-700">{r.thanks} ₪</span>
+        </div>
+      ))}
+      <div className="text-center text-sm font-bold text-slate-700">יותר סיכון = ״תודה״ גדולה יותר (המספרים לדוגמה)</div>
+    </div>
+  );
+}
+
+function Seesaw() {
+  const [rate, setRate] = useState(4);
+  // פתק ישן: 100 ₪, ״תודה״ של 4 ₪ בשנה, עוד 5 שנים לפדיון
+  const price = useMemo(() => {
+    const r = rate / 100;
+    let p = 100 / (1 + r) ** 5;
+    for (let t = 1; t <= 5; t++) p += 4 / (1 + r) ** t;
+    return p;
+  }, [rate]);
+  const angle = -(rate - 4) * 4;
+  return (
+    <div className="h-full flex flex-col justify-center gap-2 px-5">
+      <div className="relative h-32">
+        <div className="absolute left-1/2 bottom-0 -translate-x-1/2 w-0 h-0 border-x-[20px] border-x-transparent border-b-[34px] border-b-slate-500" />
+        <div className="absolute inset-x-2 bottom-[34px] h-2.5 rounded-full bg-amber-700 transition-transform duration-500" style={{ transform: `rotate(${angle}deg)` }}>
+          <div className="absolute bottom-2 right-0 text-center w-24">
+            <Big className="text-3xl">📈</Big>
+            <div className="text-xs font-bold whitespace-nowrap">
+              ריבית בשוק <span className="num">{rate}%</span>
+            </div>
+          </div>
+          <div className="absolute bottom-2 left-0 text-center w-24">
+            <Big className="text-3xl">📜</Big>
+            <div className="text-xs font-bold whitespace-nowrap">
+              מחיר הפתק <span className="num">{price.toFixed(0)} ₪</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <input type="range" min={1} max={8} step={1} value={rate} onChange={(e) => setRate(Number(e.target.value))} className="w-full accent-brand-600" aria-label="הריבית בשוק" />
+      <div className={clsx('text-center text-sm font-bold', rate > 4 ? 'text-rose-700' : rate < 4 ? 'text-emerald-700' : 'text-slate-700')}>
+        {rate > 4 ? '📉 הריבית עלתה – הפתק הישן (4%) שווה פחות' : rate < 4 ? '📈 הריבית ירדה – הפתק הישן (4%) שווה יותר' : 'הפתק נותן 4% – בדיוק כמו הריבית בשוק'}
+      </div>
+    </div>
+  );
+}
+
+// ---------- תחנה: אופציות
+function OptionTicket() {
+  return (
+    <div className="h-full flex items-center justify-center gap-5 px-4">
+      <Big className="text-7xl anim-float">🚲</Big>
+      <div className="rotate-[-4deg]">
+        <div className="rounded-2xl border-4 border-dashed border-rose-400 bg-white px-4 py-3 shadow-lg text-center anim-bob">
+          <div className="text-3xl">🎟️</div>
+          <div className="font-extrabold">שובר זכות</div>
+          <div className="text-xs mt-1">
+            לקנות אופניים ב-<span className="num font-bold">100 ₪</span>
+          </div>
+          <div className="text-xs">עד סוף החודש ⏰</div>
+          <div className="mt-2 rounded-full bg-rose-500 text-white text-xs font-bold px-2 py-0.5">
+            מחיר השובר: <span className="num">5 ₪</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OptionPlay() {
+  const [px, setPx] = useState(150);
+  const use = px > 100;
+  const pnl = use ? px - 105 : -5;
+  return (
+    <div className="h-full flex flex-col justify-center gap-2 px-5">
+      <div className="flex items-center justify-center gap-4">
+        <Big className="text-5xl">🚲</Big>
+        <div className="text-center">
+          <div className="text-xs font-bold text-slate-600">המחיר בחנות בסוף החודש</div>
+          <div className="text-3xl font-extrabold num">{px} ₪</div>
+        </div>
+        <Big className={clsx('text-4xl transition', use ? 'anim-bob' : 'grayscale opacity-40')}>🎟️</Big>
+      </div>
+      <input type="range" min={60} max={160} step={5} value={px} onChange={(e) => setPx(Number(e.target.value))} className="w-full accent-brand-600" aria-label="המחיר בחנות" />
+      <div className={clsx('rounded-xl px-3 py-2 text-center text-sm font-bold', !use ? 'bg-rose-100 text-rose-800' : pnl > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800')}>
+        {!use
+          ? '🙅 לא משתמשים בשובר – בחנות זה לא יקר יותר. מפסידים רק את ה-5 ₪ ששילמנו עליו'
+          : pnl > 0
+            ? `🤑 משתמשים בשובר! קונים ב-100 ₪ במקום ${px} ₪. רווח: ${pnl} ₪ (אחרי 5 ₪ על השובר)`
+            : `משתמשים בשובר וקונים ב-100 ₪, אבל אחרי 5 ₪ על השובר – ${pnl === 0 ? 'יוצאים בדיוק באפס' : `הפסד של ${-pnl} ₪`}`}
+      </div>
+    </div>
+  );
+}
+
+function Umbrella() {
+  return (
+    <div className="h-full relative">
+      {[5, 15, 25, 33, 72, 82, 92].map((x, i) => (
+        <Big key={x} className="absolute text-lg anim-fall" style={{ ...delay(i * 0.35), left: `${x}%`, top: '4%' }}>
+          💧
+        </Big>
+      ))}
+      <div className="absolute inset-0 flex items-center justify-center gap-8">
+        <div className="flex flex-col items-center">
+          <Big className="text-6xl anim-wiggle relative z-10">☂️</Big>
+          <Big className="text-5xl -mt-2">🧒</Big>
+          <Label className="mt-1 !text-xs !px-2 whitespace-nowrap">
+            ואני עדיין מוכר ב-<span className="num">100 ₪</span>
+          </Label>
+        </div>
+        <div className="flex flex-col items-center">
+          <Big className="text-5xl">📉</Big>
+          <Label className="mt-2 !text-xs !px-2 whitespace-nowrap">
+            המניה ירדה ל-<span className="num">70 ₪</span>
+          </Label>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Hourglass() {
+  const t = useTick(650, 16);
+  const days = Math.max(0, 30 - Math.round((t * 30) / 11));
+  const value = 5 * Math.sqrt(days / 30);
+  const expired = days === 0;
+  return (
+    <div className="h-full flex items-center justify-center gap-6 px-4">
+      <Big className={clsx('text-6xl', !expired && 'anim-wiggle')}>{expired ? '⌛' : '⏳'}</Big>
+      <div className="relative">
+        <div className="rounded-2xl border-4 border-dashed border-rose-400 bg-white px-5 py-3 text-center transition-opacity duration-500" style={{ opacity: 0.3 + 0.7 * (days / 30) }}>
+          <div className="text-3xl">🎟️</div>
+          <div className="text-xs font-bold">
+            נשארו <span className="num">{days}</span> ימים
+          </div>
+          <div className="text-sm font-extrabold">
+            שווי השובר: <span className="num">{value.toFixed(1)} ₪</span>
+          </div>
+        </div>
+        {expired && (
+          <div className="absolute inset-0 grid place-items-center">
+            <span className="rotate-[-14deg] rounded-lg border-4 border-rose-600 bg-white/90 px-2 py-0.5 text-lg font-extrabold text-rose-600 anim-grow">פג תוקף!</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 const SCENES: Record<SceneId, () => ReactNode> = {
   piggy: Piggy,
   shrink: Shrink,
@@ -680,7 +918,15 @@ const SCENES: Record<SceneId, () => ReactNode> = {
   'time-grow': TimeGrow,
   calm: Calm,
   trophy: Trophy,
-  'first-trade': FirstTrade
+  'first-trade': FirstTrade,
+  lend: Lend,
+  coupons: Coupons,
+  'who-borrows': WhoBorrows,
+  seesaw: Seesaw,
+  'option-ticket': OptionTicket,
+  'option-play': OptionPlay,
+  umbrella: Umbrella,
+  hourglass: Hourglass
 };
 
 export function Scene({ id, from, to }: { id: SceneId; from: string; to: string }) {

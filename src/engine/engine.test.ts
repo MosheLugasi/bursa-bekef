@@ -294,3 +294,27 @@ describe('dated content', () => {
     }
   });
 });
+
+import { JOURNEY, answerOrder } from '@/game/journey';
+import { GLOSSARY } from '@/content/glossary';
+
+describe('kids journey', () => {
+  it('has valid quizzes, glossary links and shuffled answers', () => {
+    const ids = new Set(GLOSSARY.map((g) => g.id));
+    const firstPos: number[] = [];
+    for (const st of JOURNEY) {
+      expect(st.cards.length).toBeGreaterThan(0);
+      for (const c of st.cards) for (const m of c.text.matchAll(/\[\[([^\]|]+)/g)) expect(ids.has(m[1]), `${st.id}: ${m[1]}`).toBe(true);
+      for (const q of st.quiz) {
+        expect(q.answer).toBeLessThan(q.options.length);
+        const ord = answerOrder(q);
+        expect([...ord].sort()).toEqual(q.options.map((_, i) => i));
+        firstPos.push(ord.indexOf(q.answer));
+      }
+    }
+    // התשובה הנכונה לא תמיד באותו מקום
+    expect(new Set(firstPos).size).toBeGreaterThan(1);
+    expect(JOURNEY.map((s) => s.id)).toContain('bonds');
+    expect(JOURNEY.map((s) => s.id)).toContain('options');
+  });
+});

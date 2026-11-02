@@ -64,6 +64,7 @@ body {
 @keyframes grow { from { transform: scale(0) } to { transform: scale(1) } }
 @keyframes spin-slow { to { transform: rotate(360deg) } }
 @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, .5) } 100% { box-shadow: 0 0 0 16px rgba(79, 70, 229, 0) } }
+@keyframes slide-x { 0% { transform: translateX(var(--from, 0)); opacity: 0 } 15% { opacity: 1 } 85% { opacity: 1 } 100% { transform: translateX(var(--to, 0)); opacity: 0 } }
 @keyframes fly-in { 0% { transform: translate(var(--fx, 0), -120px) scale(.6); opacity: 0 } 100% { transform: translate(0, 0) scale(1); opacity: 1 } }
 @media (prefers-reduced-motion: no-preference) {
   .anim-float { animation: float 3s ease-in-out infinite; display: inline-block; }
@@ -77,6 +78,7 @@ body {
   .anim-grow { animation: grow .5s cubic-bezier(.34, 1.56, .64, 1) both; }
   .anim-spin-slow { animation: spin-slow 12s linear infinite; }
   .anim-pulse-ring { animation: pulse-ring 1.4s ease-out infinite; }
+  .anim-slide-x { animation: slide-x 2.4s ease-in-out infinite; display: inline-block; }
   .anim-fly-in { animation: fly-in .7s cubic-bezier(.34, 1.56, .64, 1) both; }
 }
 @keyframes ticker-scroll { from { transform: translateY(0) } to { transform: translateY(-50%) } }

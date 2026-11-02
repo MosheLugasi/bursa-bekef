@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { JOURNEY, JOURNEY_XP, stationIndex, type JourneyStation } from '@/game/journey';
+import { JOURNEY, JOURNEY_XP, answerOrder, stationIndex, type JourneyStation } from '@/game/journey';
 import { useCurrentProfile, useGame } from '@/state/store';
 import type { Profile } from '@/state/types';
 import { awardXp, checkAchievements, fireConfetti } from '@/game/actions';
@@ -43,7 +43,7 @@ export function JourneyMap() {
       <div className="relative py-2">
         {JOURNEY.map((s, i) => {
           const res = profile.journey?.[s.id];
-          const locked = i > cur;
+          const locked = i > cur && !res; // תחנות שכבר הושלמו תמיד פתוחות (גם אם נוספו תחנות חדשות לפניהן)
           const current = i === cur && !res;
           const side = i % 2 === 0 ? 'right' : 'left';
           return (
@@ -132,7 +132,7 @@ function StationPlayer({ station, idx }: { station: JourneyStation; idx: number 
     if (!prev) {
       awardXp(profile.id, JOURNEY_XP.station, `תחנה הושלמה: ${station.title}`);
       const after = useGame.getState().profiles[profile.id];
-      if (JOURNEY.every((s) => after.journey?.[s.id])) awardXp(profile.id, JOURNEY_XP.finish, 'סיימתם את כל המסע! 🗺️');
+      if (JOURNEY.every((s) => after.journey?.[s.id]) && !after.achievements['journey-done']) awardXp(profile.id, JOURNEY_XP.finish, 'סיימתם את כל המסע! 🗺️');
     }
     checkAchievements(profile.id);
     fireConfetti(stars === 3);
@@ -193,8 +193,9 @@ function StationPlayer({ station, idx }: { station: JourneyStation; idx: number 
           </div>
           <div className="text-xl font-extrabold text-center my-3">{station.quiz[qi].q}</div>
           <div key={wrongShake} className={clsx('grid gap-2', wrongShake > 0 && picked !== station.quiz[qi].answer && 'anim-shake')}>
-            {station.quiz[qi].options.map((o, i) => {
+            {answerOrder(station.quiz[qi]).map((i) => {
               const q = station.quiz[qi];
+              const o = q.options[i];
               const isRight = picked === q.answer && i === q.answer;
               const isWrong = picked === i && i !== q.answer;
               return (
@@ -248,6 +249,11 @@ function StationPlayer({ station, idx }: { station: JourneyStation; idx: number 
             <button className="btn-soft" onClick={() => nav('/journey')}>
               🗺️ למפה
             </button>
+            {station.lesson && (
+              <Link to={`/learn/${station.lesson.id}`} className="btn-soft">
+                🎓 {station.lesson.label}
+              </Link>
+            )}
             {next ? (
               <button className="btn-primary" onClick={() => nav(`/journey/${next.id}`)}>
                 לתחנה הבאה: {next.emoji} {next.title} ←
