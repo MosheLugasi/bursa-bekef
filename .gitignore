@@ -12,3 +12,4 @@ public/data/
 agent-briefs/
 tsconfig.tsbuildinfo
 .claude/worktrees/
+base44/.app.jsonc
