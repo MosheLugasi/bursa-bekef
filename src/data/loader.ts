@@ -2,12 +2,41 @@
 import { create } from 'zustand';
 import { MarketData, type DetailFile, type Manifest, type OverviewFile } from '@/engine/market';
 
-const BASE = `${import.meta.env.BASE_URL}data/`;
+const LOCAL = `${import.meta.env.BASE_URL}data/`;
+/**
+ * הנתונים נוצרים כל יום ב-GitHub Actions ומתפרסמים יחד עם האתר ב-GitHub Pages.
+ * כשהאתר רץ במקום אחר (למשל בתצוגה המקדימה של Base44) ואין בו תיקיית data –
+ * טוענים את אותם קבצים מהאתר ב-GitHub Pages (שמאפשר גישה מכל דומיין).
+ */
+export const REMOTE_DATA = (import.meta.env.VITE_DATA_URL as string | undefined) || 'https://moshelugasi.github.io/bursa-bekef/data/';
+let BASE = LOCAL;
+
+async function fetchJSON<T>(url: string): Promise<T> {
+  const r = await fetch(url, { cache: 'no-cache' });
+  if (!r.ok) throw new Error(`${url.split('/').pop()}: ${r.status}`);
+  const text = await r.text();
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    // שרתים שמחזירים את דף האפליקציה במקום קובץ חסר
+    throw new Error(`${url.split('/').pop()}: not JSON`);
+  }
+}
 
 async function getJSON<T>(path: string): Promise<T> {
-  const r = await fetch(BASE + path, { cache: 'no-cache' });
-  if (!r.ok) throw new Error(`${path}: ${r.status}`);
-  return (await r.json()) as T;
+  return fetchJSON<T>(BASE + path);
+}
+
+/** בוחרים מקור נתונים: קודם מקומי, ואם אין – GitHub Pages */
+async function getManifest(): Promise<Manifest> {
+  try {
+    return await fetchJSON<Manifest>(LOCAL + 'manifest.json');
+  } catch (e) {
+    if (LOCAL === REMOTE_DATA || new URL(LOCAL, location.href).href === REMOTE_DATA) throw e;
+    const m = await fetchJSON<Manifest>(REMOTE_DATA + 'manifest.json');
+    BASE = REMOTE_DATA;
+    return m;
+  }
 }
 
 interface MarketState {
@@ -30,7 +59,8 @@ export const useMarketStore = create<MarketState>((set, get) => ({
     set({ status: 'loading' });
     loading = (async () => {
       try {
-        const [manifest, overview] = await Promise.all([getJSON<Manifest>('manifest.json'), getJSON<OverviewFile>('closes.json')]);
+        const manifest = await getManifest();
+        const overview = await getJSON<OverviewFile>('closes.json');
         const market = new MarketData(overview, manifest);
         set({ market, status: 'ready' });
         return market;
