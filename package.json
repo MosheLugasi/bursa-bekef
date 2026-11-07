@@ -13,8 +13,8 @@
     "devdata": "python3 pipeline/make_dev_data.py"
   },
   "dependencies": {
+    "@base44/sdk": "^0.8.59",
     "@fontsource-variable/rubik": "^5.3.0",
-    "@supabase/supabase-js": "^2.118.0",
     "canvas-confetti": "^1.9.4",
     "lightweight-charts": "^5.2.1",
     "react": "^19.3.1",

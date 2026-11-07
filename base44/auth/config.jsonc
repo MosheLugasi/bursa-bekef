@@ -1,0 +1,13 @@
+// התחברות: רק Google (עם המפתחות המנוהלים של Base44 – בלי הגדרות ב-Google Cloud)
+{
+  "enableUsernamePassword": false,
+  "enableGoogleLogin": true,
+  "enableMicrosoftLogin": false,
+  "enableFacebookLogin": false,
+  "enableAppleLogin": false,
+  "googleOAuthMode": "default",
+  "googleOAuthClientId": null,
+  "enableSSOLogin": false,
+  "ssoProviderName": null,
+  "useWorkspaceSSO": false
+}

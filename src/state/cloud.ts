@@ -1,33 +1,38 @@
-// חשבונות ענן (לא חובה) – Supabase + התחברות עם Google.
-// משפחה = חשבון. מנהל האפליקציה מאשר חשבונות Google ומגדיר לכל משפחה כמה שחקנים מותר לפתוח.
-// כל "מסמך" (שחקן / תיק / הגדרות) נשמר כשורה בטבלה family_docs, מוגן ב-RLS לפי חברות במשפחה.
-// בלי הגדרת ענן (או בלי התחברות) המשחק עובד כמו קודם – נשמר רק במכשיר.
+// חשבונות ענן – Base44 (backend בלבד; האתר עצמו ב-GitHub Pages).
+// התחברות עם Google (המפתחות של Base44 – בלי הגדרות ב-Google Cloud).
+// משפחה = חשבון (ישות Family). מנהל המשחק (role: admin) מאשר בקשות גישה ומגדיר כמה שחקנים מותר לכל משפחה.
+// נתוני המשחק: כל שחקן / תיק / הגדרות = רשומת FamilyDoc. ההרשאות נאכפות בשרת (RLS ב-base44/entities/*.jsonc).
+// בלי התחברות המשחק עובד כמו קודם – נשמר רק במכשיר.
 import { create } from 'zustand';
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Base44Client } from '@base44/sdk';
 import { DEFAULT_APP_SETTINGS, useGame } from './store';
 import type { GameState } from './types';
 
+/** האפליקציה ב-Base44 (מזהה ציבורי – לא סוד) */
+export const DEFAULT_BASE44 = { appId: '6aefa4296b5b048c0f5fb91f', appUrl: 'https://base44.app' };
+
 interface CloudConfig {
-  url: string;
-  anonKey: string;
+  appId: string;
+  /** לאן מפנים להתחברות (שרת ה-auth של Base44) */
+  appUrl: string;
 }
 
-const CFG_KEY = 'bursa-bekef-cloud';
+const CFG_KEY = 'bursa-bekef-base44';
 const FAMILY_KEY = 'bursa-bekef-family'; // המשפחה שנבחרה במכשיר
 const LINKED_KEY = 'bursa-bekef-linked-family'; // לאיזו משפחה שייכים הנתונים שבמכשיר
 const META_PREFIX = 'bursa-bekef-sync-';
 const BACKUP_KEY = 'bursa-bekef-backup';
 
 export function builtInConfig(): CloudConfig | undefined {
-  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-  const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-  return url && anonKey ? { url, anonKey } : undefined;
+  const env = import.meta.env as Record<string, string | undefined>;
+  if (env.VITE_BASE44_DISABLED === '1') return undefined;
+  return { appId: env.VITE_BASE44_APP_ID || DEFAULT_BASE44.appId, appUrl: env.VITE_BASE44_APP_URL || DEFAULT_BASE44.appUrl };
 }
 
 export function loadConfig(): CloudConfig | undefined {
   try {
     const c = JSON.parse(localStorage.getItem(CFG_KEY) || 'null');
-    if (c?.url && c?.anonKey) return c;
+    if (c?.appId) return { appId: c.appId, appUrl: c.appUrl || DEFAULT_BASE44.appUrl };
   } catch {
     /* ignore */
   }
@@ -48,6 +53,8 @@ export interface Family {
   name: string;
   max_profiles: number;
   active: boolean;
+  members: string[];
+  owners: string[];
   role: 'owner' | 'member';
 }
 
@@ -77,22 +84,56 @@ interface CloudState {
 export const useCloud = create<CloudState>((set) => ({ status: 'off', isAdmin: false, families: [], set: (p) => set(p) }));
 const setCloud = (p: Partial<CloudState>) => useCloud.getState().set(p);
 
-let client: SupabaseClient | null = null;
+let client: Base44Client | null = null;
 let applying = false;
 let timer: ReturnType<typeof setTimeout> | null = null;
 let syncing: Promise<void> | null = null;
 let initDone = false;
 
-export async function getClient(): Promise<SupabaseClient | null> {
+export async function getClient(): Promise<Base44Client | null> {
   const cfg = loadConfig();
   if (!cfg) return null;
   if (!client) {
-    const { createClient } = await import('@supabase/supabase-js');
-    client = createClient(cfg.url, cfg.anonKey, {
-      auth: { persistSession: true, storageKey: 'bursa-bekef-auth', flowType: 'pkce', detectSessionInUrl: true, autoRefreshToken: true }
-    });
+    const { createClient } = await import('@base44/sdk');
+    // הטוקן חוזר מ-Google בכתובת (?access_token=...) – הספרייה שומרת אותו ומנקה את הכתובת
+    client = createClient({ appId: cfg.appId, appBaseUrl: cfg.appUrl, analytics: { enabled: false } });
   }
   return client;
+}
+
+const norm = (e: string) => e.trim().toLowerCase();
+const errText = (e: unknown): string => {
+  if (e && typeof e === 'object') {
+    const o = e as { message?: string; data?: { message?: string }; response?: { data?: { message?: string } } };
+    return o.data?.message ?? o.response?.data?.message ?? o.message ?? String(e);
+  }
+  return String(e);
+};
+
+interface FamilyRecord {
+  id: string;
+  name: string;
+  max_profiles?: number;
+  active?: boolean;
+  members?: string[];
+  owners?: string[];
+  created_date?: string;
+}
+function toFamily(r: FamilyRecord, email: string): Family {
+  const members = (r.members ?? []).map(norm);
+  const owners = (r.owners ?? []).map(norm);
+  return { id: r.id, name: r.name, max_profiles: r.max_profiles ?? 4, active: r.active !== false, members, owners, role: owners.includes(email) ? 'owner' : 'member' };
+}
+
+interface DocRecord {
+  id: string;
+  family_id: string;
+  doc_id: string;
+  payload?: { updatedAt?: string } | null;
+  deleted?: boolean;
+  client_updated_at?: string;
+  created_by?: string;
+  updated_date?: string;
 }
 
 // ---------- מסמכים וסנכרון
@@ -100,6 +141,8 @@ export async function getClient(): Promise<SupabaseClient | null> {
 interface Meta {
   pushed: Record<string, string>; // docId -> updatedAt שנשלח/התקבל
   lastPull?: string;
+  /** רשימת החברים שנכתבה לרשומות (כדי לעדכן הרשאות כשמצטרף/עוזב מישהו) */
+  membersSig?: string;
 }
 const metaKey = (fid: string) => META_PREFIX + fid;
 function loadMeta(fid: string): Meta {
@@ -165,29 +208,44 @@ export function mergeRemote(st: GameState, rows: RemoteRow[], pushed: Record<str
   return { next, changed };
 }
 
-function quotaMessage(e: unknown): string | undefined {
-  const m = e instanceof Error ? e.message : typeof e === 'object' && e && 'message' in e ? String((e as { message: unknown }).message) : String(e);
-  const q = /PROFILE_QUOTA (\d+)/.exec(m);
-  if (q) return `הגעתם למספר השחקנים המקסימלי בחשבון (${q[1]}). כדי להוסיף עוד – בקשו מהמנהל להגדיל את המכסה.`;
-  return undefined;
+
+/** רשומות מהשרת → שורות למיזוג. מסנן רשומות שלא נוצרו על ידי חבר במשפחה (הגנה מ"שתילת" נתונים). */
+export function rowsFromRecords(recs: DocRecord[], familyId: string, members: string[]): RemoteRow[] {
+  const ok = new Set(members.map(norm));
+  return recs
+    .filter((r) => r.family_id === familyId && r.doc_id && (!r.created_by || ok.has(norm(r.created_by))))
+    .map((r) => ({ id: r.doc_id, data: r.payload ?? null, deleted: !!r.deleted, updated_at: r.client_updated_at || r.updated_date || '' }));
 }
 
 async function doSync(): Promise<void> {
-  const sb = await getClient();
-  const fam = useCloud.getState().family;
-  if (!sb || !fam || localStorage.getItem(LINKED_KEY) !== fam.id) return;
+  const b = await getClient();
+  let fam = useCloud.getState().family;
+  if (!b || !fam || localStorage.getItem(LINKED_KEY) !== fam.id) return;
   setCloud({ status: 'syncing' });
   const meta = loadMeta(fam.id);
   try {
+    // 0) רענון פרטי המשפחה (חברים, מכסה, השבתה)
+    const famRecs = (await b.entities.Family.filter({ id: fam.id })) as FamilyRecord[];
+    if (!famRecs.length) return void loadAccount();
+    fam = toFamily(famRecs[0], useCloud.getState().email ?? '');
+    if (!fam.active || !fam.members.includes(useCloud.getState().email ?? '')) return void loadAccount();
+    setCloud({ family: fam, families: useCloud.getState().families.map((f) => (f.id === fam!.id ? fam! : f)) });
+
     // 1) משיכה (עם חפיפה של 2 דקות, כדי לא לפספס כתיבות מקבילות)
-    let q = sb.from('family_docs').select('id,data,deleted,updated_at,synced_at').eq('family_id', fam.id);
-    if (meta.lastPull) q = q.gt('synced_at', new Date(t(meta.lastPull) - 120_000).toISOString());
-    const { data: rows, error } = await q;
-    if (error) throw error;
+    const q: Record<string, unknown> = { family_id: fam.id };
+    if (meta.lastPull) q.updated_date = { $gt: new Date(t(meta.lastPull) - 120_000).toISOString() };
+    let recs: DocRecord[];
+    try {
+      recs = (await b.entities.FamilyDoc.filter(q, 'updated_date', 5000)) as DocRecord[];
+    } catch (e) {
+      if (!q.updated_date) throw e;
+      recs = (await b.entities.FamilyDoc.filter({ family_id: fam.id }, 'updated_date', 5000)) as DocRecord[]; // גיבוי: משיכה מלאה
+    }
     let maxPulled = meta.lastPull;
-    if (rows?.length) {
-      for (const r of rows as (RemoteRow & { synced_at: string })[]) if (!maxPulled || t(r.synced_at) > t(maxPulled)) maxPulled = r.synced_at;
-      const { next, changed } = mergeRemote(useGame.getState(), rows as RemoteRow[], meta.pushed);
+    for (const r of recs) if (r.updated_date && (!maxPulled || t(r.updated_date) > t(maxPulled))) maxPulled = r.updated_date;
+    const rows = rowsFromRecords(recs, fam.id, fam.members);
+    if (rows.length) {
+      const { next, changed } = mergeRemote(useGame.getState(), rows, meta.pushed);
       if (changed) {
         applying = true;
         useGame.setState(next);
@@ -195,34 +253,37 @@ async function doSync(): Promise<void> {
       }
     }
     meta.lastPull = maxPulled;
-    // 2) דחיפה
+
+    // 2) עדכון רשימת החברים ברשומות הקיימות (כשמצטרף/עוזב מישהו)
+    const sig = [...fam.members].sort().join(',');
+    if (meta.membersSig && meta.membersSig !== sig) await b.entities.FamilyDoc.updateMany({ family_id: fam.id }, { $set: { members: fam.members } });
+    meta.membersSig = sig;
+
+    // 3) דחיפה
     const st = useGame.getState();
-    const ups: { family_id: string; id: string; data: unknown; deleted: boolean; updated_at: string }[] = [];
-    for (const d of localDocs(st)) if (meta.pushed[d.id] !== d.updatedAt) ups.push({ family_id: fam.id, id: d.id, data: d.data, deleted: false, updated_at: d.updatedAt || new Date().toISOString() });
-    for (const [id, ts] of Object.entries(st.deleted)) if (meta.pushed[id] !== ts) ups.push({ family_id: fam.id, id, data: null, deleted: true, updated_at: ts });
+    const ups: { family_id: string; doc_id: string; payload: unknown; deleted: boolean; client_updated_at: string; members: string[] }[] = [];
+    for (const d of localDocs(st)) if (meta.pushed[d.id] !== d.updatedAt) ups.push({ family_id: fam.id, doc_id: d.id, payload: d.data, deleted: false, client_updated_at: d.updatedAt || new Date().toISOString(), members: fam.members });
+    for (const [id, ts] of Object.entries(st.deleted)) if (meta.pushed[id] !== ts) ups.push({ family_id: fam.id, doc_id: id, payload: null, deleted: true, client_updated_at: ts, members: fam.members });
+    // מכסת שחקנים: שחקנים חדשים מעבר למכסה לא עולים לענן
     let quotaErr: string | undefined;
-    // קודם הכל חוץ משחקנים חדשים (כדי שחריגה ממכסת השחקנים לא תעצור את שאר הנתונים)
-    const isNewProfile = (u: (typeof ups)[number]) => u.id.startsWith('profile:') && !u.deleted && !(u.id in meta.pushed);
-    const batch = ups.filter((u) => !isNewProfile(u));
-    if (batch.length) {
-      const { error: e2 } = await sb.from('family_docs').upsert(batch, { onConflict: 'family_id,id' });
-      if (e2) throw e2;
-      for (const u of batch) meta.pushed[u.id] = u.deleted ? u.updated_at : ((u.data as { updatedAt?: string })?.updatedAt ?? u.updated_at);
-    }
-    for (const u of ups.filter(isNewProfile)) {
-      const { error: e3 } = await sb.from('family_docs').upsert([u], { onConflict: 'family_id,id' });
-      if (e3) {
-        quotaErr = quotaMessage(e3);
-        if (!quotaErr) throw e3;
-        continue;
-      }
-      meta.pushed[u.id] = (u.data as { updatedAt?: string })?.updatedAt ?? u.updated_at;
+    const knownProfiles = Object.keys(meta.pushed).filter((k) => k.startsWith('profile:') && !(k in st.deleted)).length;
+    let room = Math.max(0, fam.max_profiles - knownProfiles);
+    const send = ups.filter((u) => {
+      if (!u.doc_id.startsWith('profile:') || u.deleted || u.doc_id in meta.pushed) return true;
+      if (room > 0) return room--, true;
+      quotaErr = `הגעתם למספר השחקנים המקסימלי בחשבון (${fam!.max_profiles}). כדי להוסיף עוד – בקשו מהמנהל להגדיל את המכסה.`;
+      return false;
+    });
+    for (let i = 0; i < send.length; i += 200) {
+      const chunk = send.slice(i, i + 200);
+      await b.entities.FamilyDoc.upsert(chunk, { key: ['family_id', 'doc_id'] });
+      for (const u of chunk) meta.pushed[u.doc_id] = u.deleted ? u.client_updated_at : ((u.payload as { updatedAt?: string })?.updatedAt ?? u.client_updated_at);
     }
     saveMeta(fam.id, meta);
     setCloud({ status: quotaErr ? 'error' : 'ok', error: quotaErr, lastSync: new Date().toISOString() });
   } catch (e) {
     saveMeta(fam.id, meta);
-    setCloud({ status: 'error', error: quotaMessage(e) ?? (e instanceof Error ? e.message : typeof e === 'object' && e && 'message' in e ? String((e as { message: unknown }).message) : String(e)) });
+    setCloud({ status: 'error', error: errText(e) });
   }
 }
 
@@ -234,36 +295,33 @@ export function syncNow(): Promise<void> {
 // ---------- חשבון
 
 async function loadAccount(): Promise<void> {
-  const sb = await getClient();
-  if (!sb) return setCloud({ status: 'off' });
-  const { data: sess } = await sb.auth.getSession();
-  const user = sess.session?.user;
-  if (!user) return setCloud({ status: 'signed-out', email: undefined, name: undefined, isAdmin: false, families: [], family: undefined });
-  const email = (user.email ?? '').toLowerCase();
-  const name = (user.user_metadata?.full_name as string | undefined) ?? (user.user_metadata?.name as string | undefined);
-  setCloud({ email, name });
+  const b = await getClient();
+  if (!b) return setCloud({ status: 'off' });
+  const signedOut = () => setCloud({ status: 'signed-out', email: undefined, name: undefined, isAdmin: false, families: [], family: undefined });
+  if (!b.auth.hasToken()) return signedOut();
+  let me: { email: string; full_name: string | null; role?: string };
   try {
-    const [adm, mem] = await Promise.all([
-      sb.from('app_admins').select('email').eq('email', email).maybeSingle(),
-      sb.from('family_members').select('role, families(id,name,max_profiles,active)').eq('email', email)
-    ]);
-    if (mem.error) throw mem.error;
-    const families: Family[] = [];
-    for (const r of (mem.data ?? []) as unknown as { role: Family['role']; families: Omit<Family, 'role'> | null }[]) {
-      if (r.families?.active) families.push({ ...r.families, role: r.role });
-    }
-    const isAdmin = !!adm.data;
-    setCloud({ isAdmin, families });
+    me = (await b.auth.me()) as typeof me;
+  } catch {
+    return signedOut(); // הטוקן פג או לא תקף
+  }
+  const email = norm(me.email ?? '');
+  setCloud({ email, name: me.full_name ?? undefined, isAdmin: me.role === 'admin' });
+  try {
+    // ההרשאות בשרת כבר מחזירות רק משפחות שאני חבר בהן (מנהל רואה הכל) – מסננים שוב בצד הלקוח
+    const recs = (await b.entities.Family.list('-created_date', 1000)) as FamilyRecord[];
+    const families = recs.map((r) => toFamily(r, email)).filter((f) => f.active && f.members.includes(email));
+    setCloud({ families });
     if (!families.length) {
-      const req = await sb.from('access_requests').select('email').eq('email', email).maybeSingle();
-      return setCloud({ status: 'no-access', requested: !!req.data, family: undefined });
+      const req = (await b.entities.AccessRequest.filter({ email })) as unknown[];
+      return setCloud({ status: 'no-access', requested: req.length > 0, family: undefined });
     }
     const saved = localStorage.getItem(FAMILY_KEY);
     const pick = families.find((f) => f.id === saved) ?? (families.length === 1 ? families[0] : undefined);
     if (!pick) return setCloud({ status: 'pick-family', family: undefined });
     await selectFamily(pick.id);
   } catch (e) {
-    setCloud({ status: 'error', error: e instanceof Error ? e.message : String((e as { message?: unknown })?.message ?? e) });
+    setCloud({ status: 'error', error: errText(e) });
   }
 }
 
@@ -319,28 +377,34 @@ export function localBackup(): { at: string; state: GameState } | undefined {
 }
 
 export async function signInWithGoogle(): Promise<string | undefined> {
-  const sb = await getClient();
-  if (!sb) return 'החיבור לענן לא הוגדר';
-  const { error } = await sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: location.origin + location.pathname, queryParams: { prompt: 'select_account' } }
-  });
-  return error?.message;
+  const b = await getClient();
+  if (!b) return 'החיבור לענן לא הוגדר';
+  try {
+    b.auth.loginWithProvider('google', location.origin + location.pathname);
+  } catch (e) {
+    return errText(e);
+  }
+  return undefined;
 }
 
 export async function cloudSignOut() {
-  const sb = await getClient();
-  await sb?.auth.signOut();
+  // התנתקות מקומית: מוחקים את הטוקן מהמכשיר (בלי לצאת מהאתר)
+  for (const k of ['base44_access_token', 'token']) localStorage.removeItem(k);
+  client = null;
   localStorage.removeItem(FAMILY_KEY);
   setCloud({ status: 'signed-out', email: undefined, name: undefined, isAdmin: false, families: [], family: undefined, error: undefined });
 }
 
 export async function requestAccess(): Promise<string | undefined> {
-  const sb = await getClient();
+  const b = await getClient();
   const { email, name } = useCloud.getState();
-  if (!sb || !email) return 'צריך להתחבר קודם';
-  const { error } = await sb.from('access_requests').upsert({ email, name: name ?? null }, { onConflict: 'email', ignoreDuplicates: true });
-  if (error) return error.message;
+  if (!b || !email) return 'צריך להתחבר קודם';
+  try {
+    const existing = (await b.entities.AccessRequest.filter({ email })) as unknown[];
+    if (!existing.length) await b.entities.AccessRequest.create({ email, name: name ?? '' });
+  } catch (e) {
+    return errText(e);
+  }
   setCloud({ requested: true });
   return undefined;
 }
@@ -357,18 +421,16 @@ export function canAddProfile(): { ok: boolean; max?: number } {
 export async function initCloud() {
   if (initDone) return;
   initDone = true;
-  const sb = await getClient();
-  if (!sb) return setCloud({ status: 'off' });
+  const b = await getClient();
+  if (!b) return setCloud({ status: 'off' });
   setCloud({ status: 'loading' });
-  // החזרה מ-Google: ?code=... – הספרייה מחליפה אותו לחיבור; אחר כך מנקים את הכתובת
-  await sb.auth.getSession();
-  if (/[?&]code=/.test(location.search) || /[?&]error=/.test(location.search)) history.replaceState(null, '', location.pathname + location.hash);
-  sb.auth.onAuthStateChange((ev) => {
-    if (ev === 'SIGNED_IN' || ev === 'SIGNED_OUT') setTimeout(loadAccount, 0);
-  });
   await loadAccount();
   setInterval(() => useCloud.getState().family && syncNow(), 30_000);
-  document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && useCloud.getState().family && syncNow());
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    if (useCloud.getState().family) syncNow();
+    else if (useCloud.getState().status === 'no-access') loadAccount();
+  });
   useGame.subscribe(() => {
     if (applying || !useCloud.getState().family) return;
     if (timer) clearTimeout(timer);
@@ -381,7 +443,7 @@ export function resetCloudClient() {
   initDone = false;
 }
 
-// ---------- ניהול (בעלי משפחה ומנהל האפליקציה)
+// ---------- ניהול (בעלי משפחה ומנהל המשחק)
 
 export interface Member {
   family_id: string;
@@ -403,62 +465,137 @@ export interface AccessRequest {
   created_at: string;
 }
 
-const norm = (e: string) => e.trim().toLowerCase();
-const errMsg = (e: { message: string } | null) => e?.message;
+async function getFamilyRecord(b: Base44Client, id: string): Promise<FamilyRecord | undefined> {
+  return ((await b.entities.Family.filter({ id })) as FamilyRecord[])[0];
+}
+
+/** אחרי שינוי חברים – מעדכנים את ההרשאות בכל רשומות המשפחה */
+async function writeMembers(b: Base44Client, fam: FamilyRecord, members: string[], owners?: string[]) {
+  const patch: Record<string, unknown> = { members };
+  if (owners) patch.owners = owners;
+  await b.entities.Family.update(fam.id, patch);
+  await b.entities.FamilyDoc.updateMany({ family_id: fam.id }, { $set: { members } });
+}
 
 export async function listMembers(familyId: string): Promise<Member[]> {
-  const sb = await getClient();
-  const { data } = (await sb?.from('family_members').select('family_id,email,role').eq('family_id', familyId).order('created_at')) ?? { data: [] };
-  return (data ?? []) as Member[];
+  const b = await getClient();
+  if (!b) return [];
+  const f = await getFamilyRecord(b, familyId);
+  if (!f) return [];
+  const owners = (f.owners ?? []).map(norm);
+  return (f.members ?? []).map((e) => ({ family_id: familyId, email: norm(e), role: owners.includes(norm(e)) ? 'owner' : 'member' }));
 }
-export async function addMember(familyId: string, email: string, role: Member['role'] = 'member') {
-  const sb = await getClient();
-  if (!sb) return 'אין חיבור';
-  return errMsg((await sb.from('family_members').insert({ family_id: familyId, email: norm(email), role })).error);
+
+export async function addMember(familyId: string, email: string, role: Member['role'] = 'member'): Promise<string | undefined> {
+  const b = await getClient();
+  if (!b) return 'אין חיבור';
+  try {
+    const f = await getFamilyRecord(b, familyId);
+    if (!f) return 'המשפחה לא נמצאה';
+    const e = norm(email);
+    const members = Array.from(new Set([...(f.members ?? []).map(norm), e]));
+    const owners = role === 'owner' ? Array.from(new Set([...(f.owners ?? []).map(norm), e])) : undefined;
+    await writeMembers(b, f, members, owners);
+  } catch (err) {
+    return errText(err);
+  }
+  return undefined;
 }
-export async function removeMember(familyId: string, email: string) {
-  const sb = await getClient();
-  if (!sb) return 'אין חיבור';
-  return errMsg((await sb.from('family_members').delete().eq('family_id', familyId).eq('email', email)).error);
+
+export async function removeMember(familyId: string, email: string): Promise<string | undefined> {
+  const b = await getClient();
+  if (!b) return 'אין חיבור';
+  try {
+    const f = await getFamilyRecord(b, familyId);
+    if (!f) return 'המשפחה לא נמצאה';
+    const e = norm(email);
+    const owners = (f.owners ?? []).map(norm);
+    const members = (f.members ?? []).map(norm).filter((x) => x !== e);
+    await writeMembers(b, f, members, owners.includes(e) ? owners.filter((x) => x !== e) : undefined);
+  } catch (err) {
+    return errText(err);
+  }
+  return undefined;
 }
 
 export async function adminData(): Promise<{ families: AdminFamily[]; requests: AccessRequest[]; error?: string }> {
-  const sb = await getClient();
-  if (!sb) return { families: [], requests: [], error: 'אין חיבור' };
-  const [f, r, s] = await Promise.all([
-    sb.from('families').select('id,name,max_profiles,active,created_at,family_members(email,role)').order('created_at', { ascending: false }),
-    sb.from('access_requests').select('email,name,created_at').order('created_at'),
-    sb.rpc('admin_family_stats')
-  ]);
-  const stats = new Map<string, AdminFamily['stats']>(((s.data ?? []) as { family_id: string; profiles: number; portfolios: number; last_sync: string | null }[]).map((x) => [x.family_id, { profiles: Number(x.profiles), portfolios: Number(x.portfolios), last_sync: x.last_sync }]));
-  const families = ((f.data ?? []) as AdminFamily[]).map((x) => ({ ...x, stats: stats.get(x.id) }));
-  return { families, requests: (r.data ?? []) as AccessRequest[], error: f.error?.message ?? r.error?.message };
+  const b = await getClient();
+  if (!b) return { families: [], requests: [], error: 'אין חיבור' };
+  try {
+    const [fams, reqs, docs] = await Promise.all([
+      b.entities.Family.list('-created_date', 1000) as Promise<FamilyRecord[]>,
+      b.entities.AccessRequest.list('created_date', 1000) as Promise<{ email: string; name?: string; created_date: string }[]>,
+      b.entities.FamilyDoc.filter({ deleted: false }, '-updated_date', 5000, 0, ['family_id', 'doc_id', 'updated_date']) as Promise<DocRecord[]>
+    ]);
+    const stats = new Map<string, NonNullable<AdminFamily['stats']>>();
+    for (const d of docs) {
+      const s = stats.get(d.family_id) ?? { profiles: 0, portfolios: 0, last_sync: null };
+      if (d.doc_id?.startsWith('profile:')) s.profiles++;
+      if (d.doc_id?.startsWith('portfolio:')) s.portfolios++;
+      if (d.updated_date && (!s.last_sync || d.updated_date > s.last_sync)) s.last_sync = d.updated_date;
+      stats.set(d.family_id, s);
+    }
+    const families: AdminFamily[] = fams.map((f) => {
+      const owners = (f.owners ?? []).map(norm);
+      return {
+        id: f.id,
+        name: f.name,
+        max_profiles: f.max_profiles ?? 4,
+        active: f.active !== false,
+        created_at: f.created_date ?? '',
+        family_members: (f.members ?? []).map((e) => ({ email: norm(e), role: owners.includes(norm(e)) ? ('owner' as const) : ('member' as const) })),
+        stats: stats.get(f.id)
+      };
+    });
+    const requests = reqs.map((r) => ({ email: norm(r.email), name: r.name || null, created_at: r.created_date }));
+    return { families, requests };
+  } catch (e) {
+    return { families: [], requests: [], error: errText(e) };
+  }
 }
 
 export async function adminCreateFamily(name: string, ownerEmail: string, maxProfiles: number): Promise<string | undefined> {
-  const sb = await getClient();
-  if (!sb) return 'אין חיבור';
-  const { data, error } = await sb.from('families').insert({ name: name.trim() || 'משפחה', max_profiles: maxProfiles }).select('id').single();
-  if (error) return error.message;
-  const e2 = await addMember(data.id, ownerEmail, 'owner');
-  if (e2) return e2;
-  await sb.from('access_requests').delete().eq('email', norm(ownerEmail));
+  const b = await getClient();
+  if (!b) return 'אין חיבור';
+  const e = norm(ownerEmail);
+  try {
+    await b.entities.Family.create({ name: name.trim() || 'משפחה', max_profiles: maxProfiles, active: true, owners: [e], members: [e] });
+    await b.entities.AccessRequest.deleteMany({ email: e }).catch(() => undefined);
+  } catch (err) {
+    return errText(err);
+  }
   return undefined;
 }
-export async function adminUpdateFamily(id: string, patch: Partial<Pick<AdminFamily, 'name' | 'max_profiles' | 'active'>>) {
-  const sb = await getClient();
-  if (!sb) return 'אין חיבור';
-  return errMsg((await sb.from('families').update(patch).eq('id', id)).error);
+export async function adminUpdateFamily(id: string, patch: Partial<Pick<AdminFamily, 'name' | 'max_profiles' | 'active'>>): Promise<string | undefined> {
+  const b = await getClient();
+  if (!b) return 'אין חיבור';
+  try {
+    await b.entities.Family.update(id, patch);
+  } catch (e) {
+    return errText(e);
+  }
+  return undefined;
 }
-export async function adminDeleteFamily(id: string) {
-  const sb = await getClient();
-  if (!sb) return 'אין חיבור';
-  return errMsg((await sb.from('families').delete().eq('id', id)).error);
+export async function adminDeleteFamily(id: string): Promise<string | undefined> {
+  const b = await getClient();
+  if (!b) return 'אין חיבור';
+  try {
+    await b.entities.FamilyDoc.deleteMany({ family_id: id });
+    await b.entities.Family.delete(id);
+  } catch (e) {
+    return errText(e);
+  }
+  return undefined;
 }
-export async function adminDeleteRequest(email: string) {
-  const sb = await getClient();
-  if (!sb) return 'אין חיבור';
-  return errMsg((await sb.from('access_requests').delete().eq('email', email)).error);
+export async function adminDeleteRequest(email: string): Promise<string | undefined> {
+  const b = await getClient();
+  if (!b) return 'אין חיבור';
+  try {
+    await b.entities.AccessRequest.deleteMany({ email: norm(email) });
+  } catch (e) {
+    return errText(e);
+  }
+  return undefined;
 }
 
 /** רענון החשבון (למשל אחרי שהמנהל אישר) */

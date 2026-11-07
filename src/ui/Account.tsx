@@ -65,7 +65,12 @@ export function SignInScreen({ onGuest }: { onGuest: () => void }) {
                 התחברתם בתור <strong dir="ltr">{cloud.email}</strong>. כדי להיכנס, מנהל המשחק צריך לאשר את החשבון.
               </p>
             </div>
-            {cloud.requested ? (
+            {cloud.isAdmin && (
+              <a href="#/admin" className="btn-primary w-full text-center block">
+                🛡️ אתם מנהלי המשחק – לניהול חשבונות (צרו משפחה לעצמכם)
+              </a>
+            )}
+            {cloud.isAdmin ? null : cloud.requested ? (
               <div className="rounded-xl bg-up-bg p-3 text-center font-semibold">✅ הבקשה נשלחה! ברגע שהמנהל יאשר – לחצו ״בדיקה שוב״.</div>
             ) : (
               <button className="btn-primary w-full" onClick={async () => setMsg(await requestAccess())}>
@@ -116,6 +121,25 @@ export function AccountBar() {
       </div>
     );
   const dot = { loading: '🔄', syncing: '🔄', ok: '🟢', error: '🔴', 'no-access': '⏳', 'pick-family': '👪', link: '🔗', off: '', 'signed-out': '' }[cloud.status];
+  if (cloud.status === 'no-access')
+    return (
+      <div className="card p-3 max-w-md mx-auto text-sm text-center space-y-2">
+        <div>
+          ⏳ החשבון <span dir="ltr">{cloud.email}</span> עוד לא שייך למשפחה.
+        </div>
+        {cloud.isAdmin ? (
+          <a href="#/admin" className="btn-primary inline-block">
+            🛡️ לניהול חשבונות
+          </a>
+        ) : cloud.requested ? (
+          <div className="text-emerald-700 font-semibold">✅ בקשת הגישה נשלחה למנהל</div>
+        ) : (
+          <button className="btn-soft" onClick={() => requestAccess()}>
+            🙋 בקשת גישה מהמנהל
+          </button>
+        )}
+      </div>
+    );
   return (
     <div className="text-center text-xs text-slate-500">
       ☁️ {cloud.family ? <strong>{cloud.family.name}</strong> : null} {cloud.email && <span dir="ltr">{cloud.email}</span>} {dot}

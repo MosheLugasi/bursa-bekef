@@ -7,7 +7,6 @@ import {
   adminDeleteRequest,
   adminUpdateFamily,
   addMember,
-  builtInConfig,
   cloudSignOut,
   listMembers,
   loadConfig,
@@ -24,9 +23,7 @@ import {
   type AdminFamily,
   type Member
 } from '@/state/cloud';
-import { cloudSql } from '@/state/cloudSql';
 import { useGame } from '@/state/store';
-import { useUI } from '@/state/ui';
 import { GoogleButton } from './Account';
 import { SectionTitle } from './components';
 import { clsx } from './format';
@@ -52,79 +49,36 @@ const STATUS: Record<string, string> = {
   error: '🔴 שגיאה'
 };
 
-function SetupGuide() {
-  const [email, setEmail] = useState(useCloud.getState().email ?? '');
-  const sql = cloudSql(email);
-  const toast = useUI((s) => s.toast);
+function TechInfo() {
+  const cfg = loadConfig();
+  const [appId, setAppId] = useState(cfg?.appId ?? '');
+  if (!cfg) return null;
   return (
     <details className="mt-3 text-sm">
-      <summary className="cursor-pointer font-semibold">🛠️ הוראות הקמה (פעם אחת, למנהל)</summary>
-      <ol className="list-decimal pr-5 mt-2 space-y-1 text-slate-700">
-        <li>
-          פותחים פרויקט חינמי ב-<span dir="ltr">supabase.com</span> (New project).
-        </li>
-        <li>מקלידים כאן את כתובת ה-Gmail של המנהל, מעתיקים את קוד ה-SQL ומריצים אותו ב-SQL Editor.</li>
-        <li>
-          Authentication → Sign In / Providers → <strong>Google</strong>: מפעילים ומדביקים Client ID ו-Secret מ-Google Cloud (OAuth client מסוג Web, עם Redirect URI של Supabase).
-        </li>
-        <li>
-          Authentication → URL Configuration: ב-Site URL וב-Redirect URLs מוסיפים את כתובת האתר: <span dir="ltr">{location.origin + location.pathname}</span>
-        </li>
-        <li>
-          בריפו ב-GitHub: Settings → Secrets and variables → Actions → Variables: <span dir="ltr">SUPABASE_URL</span>, <span dir="ltr">SUPABASE_ANON_KEY</span>.
-        </li>
-      </ol>
-      <input className="input mt-3 text-sm" dir="ltr" type="email" placeholder="admin@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <pre className="mt-2 bg-slate-900 text-slate-100 rounded-xl p-3 text-[11px] max-h-60 overflow-auto" dir="ltr">
-        {sql}
-      </pre>
-      <button
-        className="btn-soft text-xs mt-1"
-        onClick={() => {
-          navigator.clipboard?.writeText(sql);
-          toast({ emoji: '📋', text: 'הקוד הועתק', kind: 'info' });
-        }}
-      >
-        📋 העתקת קוד ה-SQL
-      </button>
-    </details>
-  );
-}
-
-function ManualConfig() {
-  const [cfg, setCfg] = useState(loadConfig() ?? { url: '', anonKey: '' });
-  const configured = !!loadConfig();
-  if (builtInConfig()) return null;
-  return (
-    <details className="mt-3 text-sm" open={!configured}>
-      <summary className="cursor-pointer font-semibold">🔌 חיבור ידני לפרויקט Supabase</summary>
-      <div className="space-y-2 mt-2">
-        <input className="input text-sm" dir="ltr" placeholder="Project URL (https://xxxx.supabase.co)" value={cfg.url} onChange={(e) => setCfg({ ...cfg, url: e.target.value.trim() })} />
-        <input className="input text-sm" dir="ltr" placeholder="anon public key" value={cfg.anonKey} onChange={(e) => setCfg({ ...cfg, anonKey: e.target.value.trim() })} />
-        <div className="flex gap-2">
+      <summary className="cursor-pointer font-semibold">🛠️ מידע טכני (Base44)</summary>
+      <div className="mt-2 space-y-2 text-slate-700">
+        <div>
+          החשבונות והנתונים נשמרים ב-Base44. מזהה האפליקציה:{' '}
+          <span className="num font-mono text-xs" dir="ltr">
+            {cfg.appId}
+          </span>
+        </div>
+        <a className="btn-soft text-xs inline-block" href={`https://app.base44.com/apps/${cfg.appId}/editor/workspace/overview`} target="_blank" rel="noreferrer">
+          לוח הבקרה של Base44 ↗
+        </a>
+        <div className="flex gap-2 items-center">
+          <input className="input text-xs flex-1" dir="ltr" value={appId} onChange={(e) => setAppId(e.target.value.trim())} aria-label="App ID" />
           <button
-            className="btn-soft text-sm"
+            className="btn-ghost text-xs"
+            disabled={!appId || appId === cfg.appId}
             onClick={() => {
-              saveConfig(cfg.url && cfg.anonKey ? cfg : undefined);
+              saveConfig({ appId, appUrl: cfg.appUrl });
               resetCloudClient();
               initCloud();
             }}
           >
-            שמירת חיבור
+            החלפה
           </button>
-          {configured && (
-            <button
-              className="btn-ghost text-sm"
-              onClick={() => {
-                saveConfig(undefined);
-                resetCloudClient();
-                setCfg({ url: '', anonKey: '' });
-                useCloud.getState().set({ status: 'off' });
-              }}
-            >
-              ניתוק
-            </button>
-          )}
         </div>
       </div>
     </details>
@@ -190,7 +144,7 @@ export function AccountSection() {
     <Card title="☁️ חשבון המשפחה (Google)">
       {!configured ? (
         <p className="text-sm text-slate-600">
-          כרגע המשחק נשמר רק במכשיר הזה. אחרי הקמת חשבונות הענן (הוראות למטה) כל משפחה תיכנס עם Google, תשחק מכל מכשיר, והמנהל יאשר חשבונות ויקבע כמה שחקנים יש לכל משפחה.
+          חשבונות הענן כבויים בגרסה הזו – המשחק נשמר רק במכשיר.
         </p>
       ) : (
         <div className="space-y-3">
@@ -208,7 +162,7 @@ export function AccountSection() {
           {cloud.status === 'signed-out' && <GoogleButton />}
           {cloud.status === 'no-access' && (
             <div className="rounded-xl bg-amber-50 p-3 text-sm">
-              החשבון עוד לא אושר על ידי המנהל. {cloud.requested ? 'הבקשה נשלחה ✅' : ''}
+              {cloud.isAdmin ? 'אתם מנהלי המשחק – צרו לעצמכם משפחה ב״ניהול חשבונות״ למטה (עם הכתובת שלכם), ואז לחצו ״בדיקה שוב״.' : `החשבון עוד לא אושר על ידי המנהל. ${cloud.requested ? 'הבקשה נשלחה ✅' : ''}`}
               <div className="flex gap-2 mt-2">
                 <button className="btn-soft text-sm" onClick={() => refreshAccount()}>
                   🔄 בדיקה שוב
@@ -264,8 +218,7 @@ export function AccountSection() {
           )}
         </div>
       )}
-      <ManualConfig />
-      <SetupGuide />
+      <TechInfo />
     </Card>
   );
 }

@@ -1,0 +1,32 @@
+// משפחה = חשבון. רק מנהל המשחק (role: admin) יוצר משפחות וקובע מכסת שחקנים.
+// members – כתובות Gmail (באותיות קטנות) שמותר להן להיכנס; owners – מי שיכול לצרף בני משפחה נוספים.
+{
+  "name": "Family",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string" },
+    "max_profiles": {
+      "type": "number",
+      "default": 4,
+      "rls": { "write": { "user_condition": { "role": "admin" } } }
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "rls": { "write": { "user_condition": { "role": "admin" } } }
+    },
+    "owners": {
+      "type": "array",
+      "items": { "type": "string" },
+      "rls": { "write": { "user_condition": { "role": "admin" } } }
+    },
+    "members": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["name"],
+  "rls": {
+    "read": { "$or": [{ "data.members": "{{user.email}}" }, { "user_condition": { "role": "admin" } }] },
+    "create": { "user_condition": { "role": "admin" } },
+    "update": { "$or": [{ "data.owners": { "$in": ["{{user.email}}"] } }, { "user_condition": { "role": "admin" } }] },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}

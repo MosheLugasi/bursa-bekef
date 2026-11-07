@@ -45,27 +45,21 @@
 
 > GitHub Pages חינמי לריפו ציבורי. לריפו פרטי צריך מנוי GitHub Pro.
 
-## ☁️ חשבונות משפחה עם Google (לא חובה)
+## ☁️ חשבונות משפחה עם Google (Base44)
 
-בלי חשבונות, המשחק נשמר בדפדפן של המכשיר. עם חשבונות: כל משפחה נכנסת עם Google, משחקת מכל מכשיר,
-ומנהל המשחק מאשר חשבונות וקובע לכל משפחה כמה שחקנים מותר לפתוח. משפחה יכולה לצרף גם חשבון Google של הורה נוסף.
+בלי התחברות, המשחק נשמר בדפדפן של המכשיר. עם התחברות: כל משפחה נכנסת עם Google, משחקת מכל מכשיר,
+ומנהל המשחק מאשר משפחות וקובע לכל משפחה כמה שחקנים מותר לפתוח. משפחה יכולה לצרף גם חשבון Google של הורה נוסף.
 
-**הקמה (פעם אחת, למנהל):**
+**איך זה עובד:**
+- ה-backend (התחברות, משפחות, הרשאות ונתוני משחק) נמצא ב-[Base44](https://app.base44.com) – האתר עצמו נשאר ב-GitHub Pages.
+- מי שמתחבר עם Google ועוד לא שייך למשפחה שולח **בקשת גישה**. המנהל רואה את הבקשות במשחק:
+  **אזור ניהול → ניהול חשבונות** – מאשר, ובוחר כמה שחקנים מותר למשפחה (אפשר גם להשבית/למחוק משפחה).
+- בעלי משפחה יכולים לצרף חשבון Google של בן/בת הזוג (אזור ניהול → חשבון המשפחה).
+- ההרשאות נאכפות בשרת של Base44 (Row Level Security) – כל משפחה רואה רק את המידע שלה.
+- המנהל = מי שתפקידו `admin` באפליקציה ב-Base44 (בעל האפליקציה מקבל אותו אוטומטית; אפשר לשנות ב-Base44 → Users).
 
-1. [supabase.com](https://supabase.com) → **New project** (חינמי).
-2. במשחק: **אזור ניהול → חשבון המשפחה → הוראות הקמה** → מקלידים את ה-Gmail של המנהל → מעתיקים את קוד ה-SQL →
-   ב-Supabase: **SQL Editor → New query** → מדביקים → **Run**.
-3. ב-[Google Cloud Console](https://console.cloud.google.com/apis/credentials): **Create credentials → OAuth client ID → Web application**.
-   ב-Authorized redirect URIs מוסיפים `https://<project-ref>.supabase.co/auth/v1/callback` (מופיע ב-Supabase במסך ספק Google).
-   במסך ההסכמה (OAuth consent screen) – External, ואז **Publish app**.
-4. Supabase: **Authentication → Sign In / Providers → Google** → מפעילים ומדביקים Client ID + Client Secret.
-5. Supabase: **Authentication → URL Configuration** → Site URL וגם Redirect URLs: `https://moshelugasi.github.io/bursa-bekef/`.
-6. Supabase: **Project Settings → API** → מעתיקים `Project URL` ו-`anon public key` →
-   בריפו: **Settings → Secrets and variables → Actions → Variables** → `SUPABASE_URL`, `SUPABASE_ANON_KEY` → מריצים שוב את ה-workflow.
-
-**איך זה עובד:** מי שמתחבר עם Google ועוד לא אושר יכול לשלוח בקשת גישה. המנהל רואה את הבקשות באזור הניהול
-(״ניהול חשבונות״), מאשר, ובוחר כמה שחקנים מותר למשפחה. ההרשאות נאכפות בשרת (Row Level Security) –
-כל משפחה רואה רק את המידע שלה, ומכסת השחקנים נבדקת גם בשרת. ה-workflow היומי ״מעיר״ את הפרויקט כדי שלא יירדם.
+**הגדרות ה-backend בקוד:** התיקייה `base44/` (טבלאות והרשאות ב-`base44/entities`, התחברות ב-`base44/auth`).
+עדכון אחרי שינוי: `npx base44 login` ואז `npx base44 deploy -y` מתוך תיקיית הפרויקט.
 
 ## 📰 חדשות
 
@@ -101,7 +95,7 @@ src/
   engine/        מנוע המשחק (טהור, עם בדיקות): מסחר, פקודות, אג״ח, אופציות, קידום זמן, סטטיסטיקות
   content/       תוכן בעברית: חברות, מילון, שיעורים, בוחן יומי, אירועים היסטוריים, רשימת הנכסים
   game/          XP, רמות, הישגים, אתגרים, הדרכות שורי, פתיחת יכולות
-  state/         מצב המשחק (localStorage) + סנכרון ענן (Supabase)
+  state/         מצב המשחק (localStorage) + חשבונות וסנכרון ענן (Base44)
   pages/, ui/    המסכים והרכיבים (React + Tailwind, RTL, מותאם לנייד)
 pipeline/
   fetch_data.py  איסוף נתונים אמיתיים (Yahoo Finance + FRED) → public/data

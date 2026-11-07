@@ -1,0 +1,10 @@
+// Base44 – הגדרות ה-backend של ״בורסה בכיף״ (התחברות עם Google, משפחות והרשאות).
+// האתר עצמו מתארח ב-GitHub Pages; Base44 משמש כ-backend בלבד.
+// עדכון: npx base44 deploy -y (או entities push / auth push)
+{
+  "name": "bursa-bekef",
+  "description": "בורסה בכיף – משחק מסחר לילדים ולמשפחות. חשבונות משפחה, הרשאות מנהל ונתוני משחק.",
+  "visibility": "public",
+  "entitiesDir": "./entities",
+  "authDir": "./auth"
+}

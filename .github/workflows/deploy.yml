@@ -73,20 +73,9 @@ jobs:
       - name: בניית האתר
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
-          # לא חובה: חיבור קבוע לסנכרון ענן (Settings → Secrets and variables → Actions → Variables)
-          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+          # לא חובה: אפליקציית Base44 אחרת לחשבונות (ברירת המחדל מוגדרת בקוד, src/state/cloud.ts)
+          VITE_BASE44_APP_ID: ${{ vars.BASE44_APP_ID }}
         run: npm run build
-
-      - name: שמירה על פרויקט Supabase ער (פרויקט חינמי נרדם אחרי שבוע בלי פעילות)
-        if: ${{ vars.SUPABASE_URL != '' }}
-        continue-on-error: true
-        env:
-          SB_URL: ${{ vars.SUPABASE_URL }}
-          SB_KEY: ${{ vars.SUPABASE_ANON_KEY }}
-        run: |
-          curl -fsS -o /dev/null "$SB_URL/rest/v1/families?select=id&limit=1" -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY"
-          echo ok
 
       - uses: actions/upload-pages-artifact@v3
         with:

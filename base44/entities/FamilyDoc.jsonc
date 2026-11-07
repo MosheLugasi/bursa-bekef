@@ -1,0 +1,21 @@
+// נתוני המשחק: כל שחקן / תיק / הגדרות של משפחה = רשומה אחת (doc_id כמו profile:abc).
+// members – עותק של חברי המשפחה, כדי שהרשאות הקריאה/כתיבה ייאכפו בשרת לכל רשומה.
+{
+  "name": "FamilyDoc",
+  "type": "object",
+  "properties": {
+    "family_id": { "type": "string" },
+    "doc_id": { "type": "string" },
+    "payload": { "type": "object" },
+    "deleted": { "type": "boolean", "default": false },
+    "client_updated_at": { "type": "string" },
+    "members": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["family_id", "doc_id"],
+  "rls": {
+    "read": { "$or": [{ "data.members": "{{user.email}}" }, { "user_condition": { "role": "admin" } }] },
+    "create": { "data.members": { "$in": ["{{user.email}}"] } },
+    "update": { "$or": [{ "data.members": { "$in": ["{{user.email}}"] } }, { "user_condition": { "role": "admin" } }] },
+    "delete": { "user_condition": { "role": "admin" } }
+  }
+}
