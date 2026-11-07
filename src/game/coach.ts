@@ -102,7 +102,13 @@ export const COACH: Record<string, CoachStep[]> = {
   ],
   journey: [
     { emoji: '🗺️', title: 'המסע של שורי', text: 'מסע של תחנות קצרות: בכל תחנה ציורים, משחק קטן ושאלה. כל תחנה שמסיימים פותחת את הבאה!' },
-    { emoji: '⭐', title: 'אוספים כוכבים', text: 'ענו נכון על השאלות כדי לקבל 3 כוכבים בכל תחנה. בסוף המסע מחכה לכם פרס 🏆.' }
+    { emoji: '⭐', title: 'אוספים כוכבים', text: 'ענו נכון על השאלות כדי לקבל 3 כוכבים בכל תחנה. בסוף המסע מחכה לכם פרס 🏆.' },
+    { emoji: '📒', title: 'מדבקות ותיבות אוצר', text: 'כל תחנה נותנת מדבקה לאלבום – ועם 3 כוכבים היא הופכת למדבקת זהב ✨. כל 3 תחנות נפתחת תיבת אוצר עם XP!' }
+  ],
+  practice: [
+    { emoji: '🏋️', title: 'זירת האימון', text: 'כאן מתאמנים על אחוזים ותשואה – שאלות חדשות בלי סוף. כל תשובה נכונה שווה XP.' },
+    { emoji: '🔥', title: 'רצף ויעד יומי', text: 'ענו נכון כמה פעמים ברצף כדי לקבל בונוס. 10 תשובות נכונות ביום = יעד יומי ועוד XP!' },
+    { emoji: '💡', title: 'רמזים', text: 'נתקעתם? לחצו על ״רמז״ וקבלו טריק. ואם טעיתם – שורי מסביר איך פותרים.' }
   ],
   admin: [
     { emoji: '⚙️', title: 'אזור ההורים', text: 'כאן מוסיפים שחקנים, פותחים תיקים לכל אחד, קובעים עמלות, ומגבים את המשחק.' },
@@ -114,6 +120,7 @@ export const COACH: Record<string, CoachStep[]> = {
 export const COACH_TOPICS: { key: string; title: string; emoji: string }[] = [
   { key: 'welcome', title: 'ברוכים הבאים', emoji: '🐂' },
   { key: 'journey', title: 'המסע של שורי', emoji: '🗺️' },
+  { key: 'practice', title: 'זירת האימון', emoji: '🏋️' },
   { key: 'market', title: 'השוק', emoji: '🏪' },
   { key: 'asset', title: 'דף חברה', emoji: '🏢' },
   { key: 'buy', title: 'קנייה', emoji: '🛒' },
@@ -151,6 +158,7 @@ export function coachForPath(path: string): string {
     '/stats': 'stats',
     '/news': 'news',
     '/predict': 'predict',
+    '/practice': 'practice',
     '/glossary': 'glossary',
     '/admin': 'admin'
   };

@@ -39,14 +39,19 @@ export default function Learn() {
         <div className="flex-1">
           <div className="text-xs font-bold text-amber-700">{jDone === 0 ? 'מתחילים כאן!' : jDone === JOURNEY.length ? 'סיימתם – אפשר לשחק שוב' : 'ממשיכים במסע'}</div>
           <div className="font-extrabold text-lg">המסע של שורי</div>
-          <div className="text-sm text-slate-600">הרפתקה עם ציורים ומשחקים: מה זו בורסה, מה זו מניה, תשואה ועוד</div>
+          <div className="text-sm text-slate-600">הרפתקה עם ציורים ומשחקים: מה זו בורסה, מניה, אחוזים, תשואה ועוד – עם מדבקות ותיבות אוצר</div>
           <ProgressBar value={jDone / JOURNEY.length} className="mt-2" color="bg-amber-400" />
         </div>
         <div className="text-sm font-bold text-amber-700 whitespace-nowrap">
           {jDone}/{JOURNEY.length} ⭐
         </div>
       </Link>
-      <div className="grid sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Link to="/practice" className="card p-4 hover:shadow-md bg-emerald-50/60">
+          <div className="text-3xl">🏋️</div>
+          <div className="font-bold">זירת האימון</div>
+          <div className="text-sm text-slate-600">תרגול אחוזים ותשואה בלי סוף – רצפים, יעד יומי ו-XP</div>
+        </Link>
         <Link to="/predict" className="card p-4 hover:shadow-md bg-violet-50/60">
           <div className="text-3xl">🔮</div>
           <div className="font-bold">מה יקרה אחר כך?</div>

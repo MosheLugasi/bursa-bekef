@@ -25,6 +25,10 @@ export interface Profile {
   daily?: { date: string; trades: number };
   /** התקדמות במסע של שורי: תחנה -> כוכבים */
   journey?: Record<string, { stars: number; at: string }>;
+  /** כמה תיבות אוצר במסע כבר נפתחו */
+  journeyChests?: number;
+  /** סטטיסטיקות "זירת האימון" (אחוזים ותשואה) */
+  practice?: { answered: number; correct: number; bestStreak: number; hardCorrect: number; day?: string; dayCorrect?: number; dayXp?: number; dayGoal?: boolean };
   activePortfolioId?: string;
   createdAt: string;
   updatedAt: string;

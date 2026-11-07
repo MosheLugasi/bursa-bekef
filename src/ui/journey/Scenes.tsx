@@ -3,29 +3,8 @@ import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from
 import type { SceneId } from '@/game/journey';
 import { fireConfetti } from '@/game/actions';
 import { clsx } from '../format';
-
-function useTick(ms: number, max = 1e9) {
-  const [t, setT] = useState(0);
-  useEffect(() => {
-    const h = setInterval(() => setT((x) => (x + 1) % max), ms);
-    return () => clearInterval(h);
-  }, [ms, max]);
-  return t;
-}
-
-const delay = (s: number): CSSProperties => ({ animationDelay: `${s}s` });
-
-function Big({ children, className, style }: { children: ReactNode; className?: string; style?: CSSProperties }) {
-  return (
-    <span className={clsx('inline-block leading-none select-none', className)} style={style} aria-hidden="true">
-      {children}
-    </span>
-  );
-}
-
-function Label({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={clsx('rounded-full bg-white/90 shadow px-3 py-1 text-sm font-bold text-slate-800', className)}>{children}</div>;
-}
+import { Big, Label, delay, useTick } from './kit';
+import { PERCENT_SCENES } from './ScenesPercent';
 
 // ---------- תחנה 1: כסף
 function Piggy() {
@@ -926,7 +905,8 @@ const SCENES: Record<SceneId, () => ReactNode> = {
   'option-ticket': OptionTicket,
   'option-play': OptionPlay,
   umbrella: Umbrella,
-  hourglass: Hourglass
+  hourglass: Hourglass,
+  ...PERCENT_SCENES
 };
 
 export function Scene({ id, from, to }: { id: SceneId; from: string; to: string }) {

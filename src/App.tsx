@@ -26,6 +26,7 @@ import Predict from '@/pages/Predict';
 import News from '@/pages/News';
 import Admin from '@/pages/Admin';
 import { JourneyMap, JourneyStationPage } from '@/pages/Journey';
+import Practice from '@/pages/Practice';
 
 const NAV = [
   { to: '/home', emoji: '🏠', label: 'בית' },
@@ -36,6 +37,7 @@ const NAV = [
 ];
 const MORE = [
   { to: '/journey', emoji: '🗺️', label: 'המסע של שורי' },
+  { to: '/practice', emoji: '🏋️', label: 'זירת האימון' },
   { to: '/bonds', emoji: '📜', label: 'אג״ח' },
   { to: '/stats', emoji: '📊', label: 'סטטיסטיקות' },
   { to: '/news', emoji: '📰', label: 'חדשות' },
@@ -242,6 +244,7 @@ export default function App() {
         <Route path="/learn/:id" element={<RequireProfile><LessonPage /></RequireProfile>} />
         <Route path="/journey" element={<RequireProfile><JourneyMap /></RequireProfile>} />
         <Route path="/journey/:id" element={<RequireProfile><JourneyStationPage /></RequireProfile>} />
+        <Route path="/practice" element={<RequireProfile><Practice /></RequireProfile>} />
         <Route path="/glossary" element={<RequireProfile><Glossary /></RequireProfile>} />
         <Route path="/predict" element={<RequireProfile><Predict /></RequireProfile>} />
         <Route path="/news" element={<RequireProfile><News /></RequireProfile>} />
