@@ -6,7 +6,7 @@ import { daysBetween } from '@/engine/dates';
 import { inst } from '@/engine/universe';
 import type { Profile } from '@/state/types';
 import { leagueOf } from './challenges';
-import { JOURNEY } from './journey';
+import { JOURNEY, PERCENT_STATIONS, RETURN_STATIONS } from './journey';
 
 export interface AchCtx {
   profile: Profile;
@@ -35,6 +35,8 @@ const ret = (c: AchCtx, p: Portfolio) => c.value(p) / p.startCash - 1;
 const bestRet = (c: AchCtx) => Math.max(-1, ...c.mine.map((p) => ret(c, p)));
 const lessonsDone = (c: AchCtx) => Object.keys(c.profile.lessons).length;
 const clamp = (x: number) => Math.max(0, Math.min(1, x));
+const goldStickers = (c: AchCtx) => JOURNEY.filter((s) => (c.profile.journey?.[s.id]?.stars ?? 0) >= 3).length;
+const practiceCorrect = (c: AchCtx) => c.profile.practice?.correct ?? 0;
 
 function heldSectors(p: Portfolio): Set<string> {
   const s = new Set<string>();
@@ -136,6 +138,17 @@ export const ACHIEVEMENTS: Achievement[] = [
   // ---- למידה
   { id: 'journey-first', emoji: '🚩', title: 'יצאנו לדרך', desc: 'סיימו את התחנה הראשונה במסע של שורי', xp: 15, category: 'learning', check: (c) => Object.keys(c.profile.journey ?? {}).length >= 1 },
   { id: 'journey-done', emoji: '🗺️', title: 'בוגרי המסע', desc: 'סיימו את כל התחנות במסע של שורי', xp: 60, category: 'learning', check: (c) => JOURNEY.every((s) => c.profile.journey?.[s.id]), progress: (c) => clamp(JOURNEY.filter((s) => c.profile.journey?.[s.id]).length / JOURNEY.length) },
+  { id: 'percent-pro', emoji: '💯', title: 'אלופי האחוזים', desc: 'סיימו את כל התחנות של עולם האחוזים במסע', xp: 40, category: 'learning', check: (c) => PERCENT_STATIONS.every((id) => c.profile.journey?.[id]), progress: (c) => clamp(PERCENT_STATIONS.filter((id) => c.profile.journey?.[id]).length / PERCENT_STATIONS.length) },
+  { id: 'return-pro', emoji: '📈', title: 'מבינים תשואה', desc: 'סיימו את כל התחנות של עולם התשואה במסע', xp: 40, category: 'learning', check: (c) => RETURN_STATIONS.every((id) => c.profile.journey?.[id]), progress: (c) => clamp(RETURN_STATIONS.filter((id) => c.profile.journey?.[id]).length / RETURN_STATIONS.length) },
+  { id: 'stickers-gold-5', emoji: '✨', title: 'אספני זהב', desc: 'אספו 5 מדבקות זהב (3 כוכבים בתחנה)', xp: 40, category: 'learning', check: (c) => goldStickers(c) >= 5, progress: (c) => clamp(goldStickers(c) / 5) },
+  { id: 'stickers-gold-all', emoji: '📒', title: 'אלבום הזהב', desc: 'כל המדבקות באלבום של שורי – בזהב!', xp: 150, category: 'learning', check: (c) => goldStickers(c) >= JOURNEY.length, progress: (c) => clamp(goldStickers(c) / JOURNEY.length) },
+  { id: 'practice-10', emoji: '🏋️', title: 'מתאמנים', desc: 'ענו נכון על 10 שאלות בזירת האימון', xp: 20, category: 'learning', check: (c) => practiceCorrect(c) >= 10, progress: (c) => clamp(practiceCorrect(c) / 10) },
+  { id: 'practice-50', emoji: '🥇', title: 'שרירי אחוזים', desc: 'ענו נכון על 50 שאלות בזירת האימון', xp: 50, category: 'learning', check: (c) => practiceCorrect(c) >= 50, progress: (c) => clamp(practiceCorrect(c) / 50) },
+  { id: 'practice-200', emoji: '🏅', title: 'מכונת חישוב', desc: 'ענו נכון על 200 שאלות בזירת האימון', xp: 120, category: 'learning', check: (c) => practiceCorrect(c) >= 200, progress: (c) => clamp(practiceCorrect(c) / 200) },
+  { id: 'practice-streak-5', emoji: '🔥', title: '5 ברצף', desc: '5 תשובות נכונות ברצף בזירת האימון', xp: 20, category: 'learning', check: (c) => (c.profile.practice?.bestStreak ?? 0) >= 5 },
+  { id: 'practice-streak-10', emoji: '⚡', title: '10 ברצף', desc: '10 תשובות נכונות ברצף בזירת האימון', xp: 40, category: 'learning', check: (c) => (c.profile.practice?.bestStreak ?? 0) >= 10 },
+  { id: 'practice-streak-20', emoji: '🌪️', title: '20 ברצף!', desc: '20 תשובות נכונות ברצף בזירת האימון', xp: 80, category: 'learning', check: (c) => (c.profile.practice?.bestStreak ?? 0) >= 20 },
+  { id: 'practice-hard-10', emoji: '🧠', title: 'אוהבים אתגרים', desc: 'ענו נכון על 10 שאלות בשלב המאתגר', xp: 50, category: 'learning', check: (c) => (c.profile.practice?.hardCorrect ?? 0) >= 10, progress: (c) => clamp((c.profile.practice?.hardCorrect ?? 0) / 10) },
   { id: 'first-lesson', emoji: '🎓', title: 'השיעור הראשון', desc: 'סיימו שיעור באקדמיה', xp: 20, category: 'learning', check: (c) => lessonsDone(c) >= 1 },
   { id: 'lessons-5', emoji: '📚', title: 'תלמידים חרוצים', desc: 'סיימו 5 שיעורים', xp: 50, category: 'learning', check: (c) => lessonsDone(c) >= 5, progress: (c) => clamp(lessonsDone(c) / 5) },
   { id: 'lessons-all', emoji: '🧑‍🎓', title: 'בוגרי האקדמיה', desc: 'סיימו את כל השיעורים', xp: 200, category: 'learning', check: (c) => lessonsDone(c) >= 20, progress: (c) => clamp(lessonsDone(c) / 20) },
