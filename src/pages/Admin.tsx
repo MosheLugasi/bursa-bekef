@@ -7,7 +7,9 @@ import { totalValue } from '@/engine/trading';
 import { formatDateHe } from '@/engine/dates';
 import { leagueName, leagueOf } from '@/game/challenges';
 import { levelFor } from '@/game/xp';
-import { CLOUD_SQL, builtInConfig, cloudSignIn, cloudSignOut, loadConfig, resetCloudClient, saveConfig, startCloudSync, syncNow, useCloud } from '@/state/cloud';
+import { canAddProfile } from '@/state/cloud';
+import { AccountSection, AppAdminSection } from '@/ui/AccountAdmin';
+import { useUI } from '@/state/ui';
 import { AGE_LABEL, checkPin, NewPortfolioSheet, PinPad, ProfileForm } from '@/ui/forms';
 import { Change, SectionTitle, Sheet } from '@/ui/components';
 import { clsx, fmtMoney } from '@/ui/format';
@@ -18,98 +20,6 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
       <SectionTitle>{title}</SectionTitle>
       {children}
     </div>
-  );
-}
-
-function CloudSection() {
-  const cloud = useCloud();
-  const [cfg, setCfg] = useState(loadConfig() ?? { url: '', anonKey: '' });
-  const [email, setEmail] = useState('');
-  const [pass, setPass] = useState('');
-  const [msg, setMsg] = useState<string>();
-  const builtIn = !!builtInConfig();
-  const configured = !!loadConfig();
-  return (
-    <Card title="☁️ סנכרון ענן (כדי לשחק מכמה מכשירים)">
-      <p className="text-sm text-slate-600 mb-3">
-        בלי ענן, המשחק נשמר רק במכשיר הזה (אפשר לשחק כל המשפחה על אותו מכשיר). כדי שכל אחד ישחק מהטלפון שלו ותהיה טבלת תחרות משותפת – מחברים חשבון Supabase חינמי (הוראות מלאות בקובץ README בריפו).
-      </p>
-      <div className="text-sm mb-3">
-        סטטוס:{' '}
-        <strong>
-          {{ off: '⚪ לא מוגדר', 'signed-out': '🟡 צריך להתחבר', syncing: '🔄 מסנכרן...', ok: '🟢 מסונכרן', error: '🔴 שגיאה' }[cloud.status]}
-        </strong>
-        {cloud.email && <span className="text-slate-500"> · {cloud.email}</span>}
-        {cloud.lastSync && <span className="text-slate-500"> · {new Date(cloud.lastSync).toLocaleTimeString('he-IL')}</span>}
-        {cloud.error && <div className="text-down text-xs mt-1" dir="ltr">{cloud.error}</div>}
-      </div>
-      {!builtIn && (
-        <div className="space-y-2 mb-3">
-          <input className="input text-sm" dir="ltr" placeholder="Supabase Project URL (https://xxxx.supabase.co)" value={cfg.url} onChange={(e) => setCfg({ ...cfg, url: e.target.value.trim() })} />
-          <input className="input text-sm" dir="ltr" placeholder="anon public key" value={cfg.anonKey} onChange={(e) => setCfg({ ...cfg, anonKey: e.target.value.trim() })} />
-          <div className="flex gap-2">
-            <button
-              className="btn-soft text-sm"
-              onClick={() => {
-                saveConfig(cfg.url && cfg.anonKey ? cfg : undefined);
-                resetCloudClient();
-                startCloudSync();
-                setMsg('נשמר. עכשיו התחברו עם חשבון המשפחה.');
-              }}
-            >
-              שמירת חיבור
-            </button>
-            {configured && (
-              <button
-                className="btn-ghost text-sm"
-                onClick={() => {
-                  saveConfig(undefined);
-                  resetCloudClient();
-                  setCfg({ url: '', anonKey: '' });
-                  useCloud.getState().set({ status: 'off' });
-                }}
-              >
-                ניתוק
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-      {configured && cloud.status !== 'ok' && cloud.status !== 'syncing' && (
-        <div className="space-y-2">
-          <input className="input" dir="ltr" type="email" placeholder="אימייל של חשבון המשפחה" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <input className="input" dir="ltr" type="password" placeholder="סיסמה" value={pass} onChange={(e) => setPass(e.target.value)} />
-          <div className="flex gap-2">
-            <button className="btn-primary flex-1" onClick={async () => setMsg((await cloudSignIn(email, pass)) ?? 'מחובר! ✅')}>
-              התחברות
-            </button>
-            <button className="btn-soft" onClick={async () => setMsg((await cloudSignIn(email, pass, true)) ?? 'החשבון נוצר ✅')}>
-              יצירת חשבון
-            </button>
-          </div>
-        </div>
-      )}
-      {cloud.status === 'ok' && (
-        <div className="flex gap-2">
-          <button className="btn-soft" onClick={() => syncNow()}>
-            🔄 סנכרון עכשיו
-          </button>
-          <button className="btn-ghost" onClick={() => cloudSignOut()}>
-            התנתקות
-          </button>
-        </div>
-      )}
-      {msg && <div className="text-sm mt-2 font-semibold">{msg}</div>}
-      <details className="mt-3 text-sm">
-        <summary className="cursor-pointer font-semibold">📋 קוד SQL להקמת הטבלה ב-Supabase</summary>
-        <pre className="mt-2 bg-slate-900 text-slate-100 rounded-xl p-3 text-xs overflow-x-auto" dir="ltr">
-          {CLOUD_SQL}
-        </pre>
-        <button className="btn-ghost text-xs" onClick={() => navigator.clipboard?.writeText(CLOUD_SQL)}>
-          העתקה
-        </button>
-      </details>
-    </Card>
   );
 }
 
@@ -287,7 +197,8 @@ export default function Admin() {
         <div className="text-xs text-slate-500 mt-2">💡 כל שחקן יכול לנהל כמה תיקים. אפשר למשל לתת לכל ילד תיק "שוק חי" ותיק "מכונת זמן", או לפתוח כמה תיקים תחת משתמש אחד.</div>
       </Card>
 
-      <CloudSection />
+      <AccountSection />
+      <AppAdminSection />
 
       <Card title="📡 נתוני השוק">
         <div className="text-sm space-y-1">
@@ -355,6 +266,11 @@ export default function Admin() {
             onCancel={() => setEdit(null)}
             onSave={(d) => {
               if (edit === 'new') {
+                const q = canAddProfile();
+                if (!q.ok) {
+                  useUI.getState().toast({ emoji: '✋', text: `בחשבון הזה אפשר עד ${q.max} שחקנים. בקשו מהמנהל להגדיל את המכסה.`, kind: 'bad' });
+                  return;
+                }
                 const id = g.addProfile({ name: d.name, avatar: d.avatar, color: d.color, ageGroup: d.ageGroup, pin: d.pin.length === 4 ? d.pin : undefined });
                 if (d.unlockAll) g.updateProfile(id, (p) => ({ ...p, unlockAll: true }));
               } else {

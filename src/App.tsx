@@ -9,7 +9,8 @@ import { ProgressBar } from '@/ui/components';
 import { CoachButton } from '@/ui/CoachFab';
 import { useUI } from '@/state/ui';
 import { clsx } from '@/ui/format';
-import { startCloudSync } from '@/state/cloud';
+import { initCloud } from '@/state/cloud';
+import { CloudGate } from '@/ui/Account';
 import Welcome from '@/pages/Welcome';
 import Home from '@/pages/Home';
 import Market from '@/pages/Market';
@@ -210,7 +211,7 @@ export default function App() {
     load().then((m) => {
       if (m) processLivePortfolios().then(() => checkAchievements());
     });
-    startCloudSync();
+    initCloud();
   }, [load]);
 
   useEffect(() => {
@@ -227,6 +228,7 @@ export default function App() {
       <CoachModal />
       <Celebrations />
       <SummaryModal />
+      <CloudGate />
       <Routes>
         <Route path="/" element={<Welcome />} />
         <Route path="/home" element={<RequireProfile><Home /></RequireProfile>} />

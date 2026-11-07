@@ -78,6 +78,16 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
         run: npm run build
 
+      - name: שמירה על פרויקט Supabase ער (פרויקט חינמי נרדם אחרי שבוע בלי פעילות)
+        if: ${{ vars.SUPABASE_URL != '' }}
+        continue-on-error: true
+        env:
+          SB_URL: ${{ vars.SUPABASE_URL }}
+          SB_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          curl -fsS -o /dev/null "$SB_URL/rest/v1/families?select=id&limit=1" -H "apikey: $SB_KEY" -H "Authorization: Bearer $SB_KEY"
+          echo ok
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

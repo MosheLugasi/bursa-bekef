@@ -11,3 +11,4 @@ __pycache__/
 public/data/
 agent-briefs/
 tsconfig.tsbuildinfo
+.claude/worktrees/

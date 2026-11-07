@@ -45,19 +45,27 @@
 
 > GitHub Pages חינמי לריפו ציבורי. לריפו פרטי צריך מנוי GitHub Pro.
 
-## ☁️ שחקנים בכמה מכשירים (סנכרון ענן – לא חובה)
+## ☁️ חשבונות משפחה עם Google (לא חובה)
 
-בלי סנכרון, המשחק נשמר בדפדפן של המכשיר (אפשר שכל המשפחה תשחק על מחשב/טאבלט אחד).
-כדי שכל אחד ישחק מהטלפון שלו עם אותה טבלת תחרות:
+בלי חשבונות, המשחק נשמר בדפדפן של המכשיר. עם חשבונות: כל משפחה נכנסת עם Google, משחקת מכל מכשיר,
+ומנהל המשחק מאשר חשבונות וקובע לכל משפחה כמה שחקנים מותר לפתוח. משפחה יכולה לצרף גם חשבון Google של הורה נוסף.
 
-1. פותחים חשבון חינמי ב-[supabase.com](https://supabase.com) → **New project**.
-2. **SQL Editor → New query** → מדביקים את הקוד מתוך מסך הניהול במשחק ("קוד SQL להקמת הטבלה") → **Run**.
-3. **Project Settings → API**: מעתיקים את `Project URL` ואת `anon public key`.
-4. בריפו: **Settings → Secrets and variables → Actions → Variables** → מוסיפים `SUPABASE_URL` ו-`SUPABASE_ANON_KEY` → מריצים שוב את ה-workflow.
-   (אפשרות אחרת: מדביקים אותם ידנית במסך הניהול בכל מכשיר.)
-5. במסך הניהול במשחק: **"יצירת חשבון"** עם אימייל וסיסמה של המשפחה (פעם אחת), ובכל מכשיר אחר – **"התחברות"** עם אותם פרטים.
+**הקמה (פעם אחת, למנהל):**
 
-הנתונים מוגנים: כל משפחה רואה רק את המידע שלה (Row Level Security).
+1. [supabase.com](https://supabase.com) → **New project** (חינמי).
+2. במשחק: **אזור ניהול → חשבון המשפחה → הוראות הקמה** → מקלידים את ה-Gmail של המנהל → מעתיקים את קוד ה-SQL →
+   ב-Supabase: **SQL Editor → New query** → מדביקים → **Run**.
+3. ב-[Google Cloud Console](https://console.cloud.google.com/apis/credentials): **Create credentials → OAuth client ID → Web application**.
+   ב-Authorized redirect URIs מוסיפים `https://<project-ref>.supabase.co/auth/v1/callback` (מופיע ב-Supabase במסך ספק Google).
+   במסך ההסכמה (OAuth consent screen) – External, ואז **Publish app**.
+4. Supabase: **Authentication → Sign In / Providers → Google** → מפעילים ומדביקים Client ID + Client Secret.
+5. Supabase: **Authentication → URL Configuration** → Site URL וגם Redirect URLs: `https://moshelugasi.github.io/bursa-bekef/`.
+6. Supabase: **Project Settings → API** → מעתיקים `Project URL` ו-`anon public key` →
+   בריפו: **Settings → Secrets and variables → Actions → Variables** → `SUPABASE_URL`, `SUPABASE_ANON_KEY` → מריצים שוב את ה-workflow.
+
+**איך זה עובד:** מי שמתחבר עם Google ועוד לא אושר יכול לשלוח בקשת גישה. המנהל רואה את הבקשות באזור הניהול
+(״ניהול חשבונות״), מאשר, ובוחר כמה שחקנים מותר למשפחה. ההרשאות נאכפות בשרת (Row Level Security) –
+כל משפחה רואה רק את המידע שלה, ומכסת השחקנים נבדקת גם בשרת. ה-workflow היומי ״מעיר״ את הפרויקט כדי שלא יירדם.
 
 ## 📰 חדשות
 

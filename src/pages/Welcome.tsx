@@ -4,14 +4,30 @@ import { useGame, useSession } from '@/state/store';
 import { levelFor } from '@/game/xp';
 import { checkPin, PinPad, ProfileForm } from '@/ui/forms';
 import { Sheet } from '@/ui/components';
+import { canAddProfile, cloudConfigured, useCloud } from '@/state/cloud';
+import { useUI } from '@/state/ui';
+import { AccountBar, SignInScreen } from '@/ui/Account';
+import type { NewProfile } from '@/state/store';
 
-function Setup({ onDone }: { onDone: () => void }) {
+/** הוספת שחקן – בכפוף למכסת השחקנים של חשבון הענן */
+function addWithQuota(add: (p: NewProfile) => string, p: NewProfile): boolean {
+  const q = canAddProfile();
+  if (!q.ok) {
+    useUI.getState().toast({ emoji: '✋', text: `בחשבון הזה אפשר עד ${q.max} שחקנים. בקשו מהמנהל להגדיל את המכסה.`, kind: 'bad' });
+    return false;
+  }
+  add(p);
+  return true;
+}
+
+function Setup({ onStart, onDone }: { onStart: () => void; onDone: () => void }) {
   const setup = useGame((s) => s.setup);
   const addProfile = useGame((s) => s.addProfile);
   const profileMap = useGame((s) => s.profiles);
   const profiles = useMemo(() => Object.values(profileMap), [profileMap]);
   const [step, setStep] = useState(0);
-  const [family, setFamily] = useState('');
+  const cloudFamily = useCloud((c) => c.family);
+  const [family, setFamily] = useState(cloudFamily?.name ?? '');
   const [pin, setPin] = useState('');
   return (
     <div className="max-w-lg mx-auto p-4 pt-10">
@@ -36,6 +52,7 @@ function Setup({ onDone }: { onDone: () => void }) {
             className="btn-primary w-full"
             onClick={() => {
               setup(family.trim() || 'המשפחה שלנו', pin.length === 4 ? pin : undefined);
+              onStart();
               setStep(1);
             }}
           >
@@ -55,7 +72,7 @@ function Setup({ onDone }: { onDone: () => void }) {
               ))}
             </div>
           )}
-          <ProfileForm key={profiles.length} saveLabel="➕ הוספת שחקן" onSave={(d) => addProfile({ name: d.name, avatar: d.avatar, color: d.color, ageGroup: d.ageGroup, pin: d.pin.length === 4 ? d.pin : undefined })} />
+          <ProfileForm key={profiles.length} saveLabel="➕ הוספת שחקן" onSave={(d) => addWithQuota(addProfile, { name: d.name, avatar: d.avatar, color: d.color, ageGroup: d.ageGroup, pin: d.pin.length === 4 ? d.pin : undefined })} />
           {profiles.length > 0 && (
             <button className="btn-buy w-full text-lg" onClick={onDone}>
               סיימנו להוסיף – בואו נשחק! 🎉
@@ -79,9 +96,26 @@ export default function Welcome() {
   const [pinErr, setPinErr] = useState<string>();
   const [adding, setAdding] = useState(false);
   const [adminPin, setAdminPin] = useState(false);
-  const [wizard, setWizard] = useState(!settings.familyName || profiles.length === 0);
+  // wizard = באמצע הוספת שחקנים בהקמה (כדי שלא נקפוץ למסך הבחירה אחרי השחקן הראשון)
+  const [wizard, setWizard] = useState(false);
+  const cloudStatus = useCloud((c) => c.status);
+  const cloudFamily = useCloud((c) => c.family);
+  const firstSyncDone = useCloud((c) => !!c.lastSync);
+  const [guest, setGuest] = useState(() => localStorage.getItem('bursa-bekef-guest') === '1');
 
-  if (wizard || !settings.familyName || profiles.length === 0) return <Setup onDone={() => setWizard(false)} />;
+  const empty = !settings.familyName || profiles.length === 0;
+  // יש חשבונות ענן ואין נתונים במכשיר: קודם מתחברים (או בוחרים לשחק בלי חשבון)
+  const familyReady = !!cloudFamily && (cloudStatus === 'ok' || cloudStatus === 'error' || (cloudStatus === 'syncing' && firstSyncDone));
+  if (empty && !wizard && cloudConfigured() && !guest && !familyReady)
+    return (
+      <SignInScreen
+        onGuest={() => {
+          localStorage.setItem('bursa-bekef-guest', '1');
+          setGuest(true);
+        }}
+      />
+    );
+  if (wizard || empty) return <Setup onStart={() => setWizard(true)} onDone={() => setWizard(false)} />;
 
   const enter = (id: string) => {
     login(id);
@@ -124,7 +158,10 @@ export default function Welcome() {
           <div className="font-semibold">שחקן חדש</div>
         </button>
       </div>
-      <div className="text-center mt-8">
+      <div className="mt-6">
+        <AccountBar />
+      </div>
+      <div className="text-center mt-4">
         <Link to="/admin" className="btn-ghost">
           ⚙️ אזור ניהול (הורים)
         </Link>
@@ -160,8 +197,7 @@ export default function Welcome() {
           saveLabel="הוספה"
           onCancel={() => setAdding(false)}
           onSave={(d) => {
-            addProfile({ name: d.name, avatar: d.avatar, color: d.color, ageGroup: d.ageGroup, pin: d.pin.length === 4 ? d.pin : undefined });
-            setAdding(false);
+            if (addWithQuota(addProfile, { name: d.name, avatar: d.avatar, color: d.color, ageGroup: d.ageGroup, pin: d.pin.length === 4 ? d.pin : undefined })) setAdding(false);
           }}
         />
       </Sheet>
