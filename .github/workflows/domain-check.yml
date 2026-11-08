@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: DNS
         run: |
-          for t in NS A AAAA; do echo "== shori.co.il $t"; dig +short shori.co.il $t; done
+          for t in NS A AAAA TXT; do echo "== shori.co.il $t"; dig +short shori.co.il $t; done
           echo "== www.shori.co.il CNAME"; dig +short www.shori.co.il CNAME
       - name: Pages settings
         env:
