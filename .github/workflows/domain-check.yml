@@ -8,19 +8,34 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 8
     steps:
       - name: DNS
         run: |
-          for t in NS A AAAA CNAME TXT; do echo "== shori.co.il $t"; dig +short shori.co.il $t; done
-          for t in A CNAME; do echo "== www.shori.co.il $t"; dig +short www.shori.co.il $t; done
-          echo "== _github-pages-challenge"; dig +short TXT _github-pages-challenge-moshelugasi.shori.co.il
-      - name: HTTP
-        run: |
-          for u in http://shori.co.il/ https://shori.co.il/ https://www.shori.co.il/ https://shori.co.il/app/ https://shori.co.il/en/ https://moshelugasi.github.io/bursa-bekef/; do
-            echo "== $u"; curl -s -o /dev/null -m 15 -w "%{http_code} -> %{redirect_url}\n" "$u" || echo "fail"
-          done
+          for t in NS A AAAA; do echo "== shori.co.il $t"; dig +short shori.co.il $t; done
+          echo "== www.shori.co.il CNAME"; dig +short www.shori.co.il CNAME
       - name: Pages settings
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh api repos/${{ github.repository }}/pages --jq '{cname, status, https_enforced, build_type, html_url, https_certificate}' || true
+        run: gh api repos/${{ github.repository }}/pages --jq '{cname, https_enforced, html_url, https_certificate}' || true
+      - name: Site check
+        run: |
+          check() {
+            local base="$1"; echo "################ $base"
+            for p in "" en/ app/ data/manifest.json sitemap.xml robots.txt manifest.webmanifest sw.js og/og-he.jpg icon.svg; do
+              printf '%-24s ' "${p:-/}"; curl -s -o /tmp/body -m 20 -L -w "%{http_code} %{url_effective}\n" "$base$p" || echo fail
+            done
+            for p in "" en/ app/; do
+              curl -s -m 20 -L "$base$p" > /tmp/page.html || continue
+              js=$(grep -o 'src="[^"]*assets/[^"]*\.js"' /tmp/page.html | head -1 | sed 's/src="//;s/"$//')
+              css=$(grep -o 'href="[^"]*assets/[^"]*\.css"' /tmp/page.html | head -1 | sed 's/href="//;s/"$//')
+              canon=$(grep -o '<link rel="canonical" href="[^"]*"' /tmp/page.html | sed 's/.*href="//;s/"$//')
+              url=$(curl -s -o /dev/null -m 20 -L -w "%{url_effective}" "$base$p")
+              for a in $js $css; do printf '  %-6s asset %s → ' "${p:-/}" "$a"; curl -s -o /dev/null -m 20 -w "%{http_code}\n" "$(python3 -c "import sys,urllib.parse as u;print(u.urljoin(sys.argv[1],sys.argv[2]))" "$url" "$a")"; done
+              [ -n "$canon" ] && echo "  ${p:-/} canonical: $canon"
+            done
+          }
+          check https://moshelugasi.github.io/bursa-bekef/
+          check https://shori.co.il/ || true
+          echo "== www redirect"; curl -s -o /dev/null -m 15 -w "%{http_code} -> %{redirect_url}\n" https://www.shori.co.il/ || true
+          echo "== http redirect"; curl -s -o /dev/null -m 15 -w "%{http_code} -> %{redirect_url}\n" http://shori.co.il/ || true
