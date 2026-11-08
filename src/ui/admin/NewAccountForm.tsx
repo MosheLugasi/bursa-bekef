@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { adminCreateFamily, norm } from '@/state/cloud';
+import { DEFAULT_MAX_PROFILES } from '@/state/cloud';
 import { inviteAppUser } from '@/state/admin';
 
 /** פתיחת חשבון משפחה חדש לכתובת Gmail (גם לפני שהאדם נכנס לאפליקציה) */
 export function NewAccountForm({ registered, onDone }: { registered: Set<string>; onDone: (email: string) => void }) {
   const [name, setName] = useState('');
   const [owner, setOwner] = useState('');
-  const [max, setMax] = useState(4);
+  const [max, setMax] = useState(DEFAULT_MAX_PROFILES);
   const [invite, setInvite] = useState(true);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string>();

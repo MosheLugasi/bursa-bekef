@@ -9,7 +9,7 @@ export const FACTS = {
   achievements: 60, // הישגים
   events: 63, // אירועים היסטוריים במשחק ״מה יקרה אחר כך?״
   challenges: 6, // מסעות במכונת הזמן
-  maxPlayers: 6 // שחקנים למשפחה בתוכנית החינמית
+  maxPlayers: 2 // שחקנים למשפחה בתוכנית החינמית
 };
 
 const he = {
@@ -135,7 +135,7 @@ const he = {
     plan: 'תוכנית המשפחה',
     price: '₪0',
     per: 'לכל המשפחה',
-    items: ['עד 6 שחקנים בכל משפחה', 'כל התחנות, השיעורים והכלים', 'נתוני שוק אמיתיים שמתעדכנים כל יום', 'סנכרון בין כל המכשירים', 'בלי פרסומות'],
+    items: ['עד 2 שחקנים בכל משפחה', 'כל התחנות, השיעורים והכלים', 'נתוני שוק אמיתיים שמתעדכנים כל יום', 'סנכרון בין כל המכשירים', 'בלי פרסומות'],
     note: 'בלי כרטיס אשראי ובלי התחייבות.',
     cta: 'פותחים חשבון משפחתי'
   },
@@ -291,7 +291,7 @@ const en = {
     plan: 'Family plan',
     price: '$0',
     per: 'for the whole family',
-    items: ['Up to 6 players per family', 'All stations, lessons and tools', 'Real market data, updated daily', 'Sync across all your devices', 'No ads'],
+    items: ['Up to 2 players per family', 'All stations, lessons and tools', 'Real market data, updated daily', 'Sync across all your devices', 'No ads'],
     note: 'No credit card. No commitment.',
     cta: 'Create a family account'
   },

@@ -10,8 +10,12 @@ import type { GameState } from './types';
 
 /** הרשמה פתוחה: מי שמתחבר בפעם הראשונה מקבל משפחה חדשה מיד (בלי אישור מנהל). המנהל עדיין יכול להשבית/למחוק ולשנות מכסות. */
 export const OPEN_SIGNUP = true;
-/** מכסת שחקנים למשפחה כשהמנהל לא קבע אחרת (התוכנית החינמית) */
-export const DEFAULT_MAX_PROFILES = 6;
+/** מכסת שחקנים למשפחה כשהמנהל לא קבע אחרת (התוכנית החינמית). המנהל יכול להגדיל למשפחה מסוימת. */
+export const DEFAULT_MAX_PROFILES = 2;
+
+/** הודעה כשמגיעים למכסת השחקנים */
+export const playerLimitText = (max: number) =>
+  max === DEFAULT_MAX_PROFILES ? `בתוכנית החינמית אפשר עד ${max} שחקנים במשפחה.` : `במשפחה הזו אפשר עד ${max} שחקנים.`;
 
 /** האפליקציה ב-Base44 (מזהה ציבורי – לא סוד) */
 export const DEFAULT_BASE44 = { appId: '6aefa4296b5b048c0f5fb91f', appUrl: 'https://base44.app' };
@@ -278,7 +282,7 @@ async function doSync(): Promise<void> {
     const send = ups.filter((u) => {
       if (!u.doc_id.startsWith('profile:') || u.deleted || u.doc_id in meta.pushed) return true;
       if (room > 0) return room--, true;
-      quotaErr = `הגעתם למספר השחקנים המקסימלי בחשבון (${fam!.max_profiles}). כדי להוסיף עוד – בקשו מהמנהל להגדיל את המכסה.`;
+      quotaErr = `${playerLimitText(fam!.max_profiles)} שחקנים נוספים נשמרו רק במכשיר הזה.`;
       return false;
     });
     for (let i = 0; i < send.length; i += 200) {
@@ -436,12 +440,13 @@ export async function requestAccess(): Promise<string | undefined> {
   return undefined;
 }
 
-/** האם מותר להוסיף עוד שחקן (לפי מכסת המשפחה בענן) */
-export function canAddProfile(): { ok: boolean; max?: number } {
+/** האם מותר להוסיף עוד שחקן: לפי מכסת המשפחה בענן, ובמשחק בלי חשבון – לפי התוכנית החינמית */
+export function canAddProfile(): { ok: boolean; max: number } {
   const { family, status } = useCloud.getState();
-  if (!family || status === 'link' || localStorage.getItem(LINKED_KEY) !== family.id) return { ok: true };
+  const linked = !!family && status !== 'link' && localStorage.getItem(LINKED_KEY) === family.id;
+  const max = linked ? family!.max_profiles : DEFAULT_MAX_PROFILES;
   const n = Object.keys(useGame.getState().profiles).length;
-  return { ok: n < family.max_profiles, max: family.max_profiles };
+  return { ok: n < max, max };
 }
 
 /** מופעל פעם אחת בעליית האפליקציה */
@@ -567,7 +572,7 @@ export async function adminData(): Promise<{ families: AdminFamily[]; requests: 
       return {
         id: f.id,
         name: f.name,
-        max_profiles: f.max_profiles ?? 4,
+        max_profiles: f.max_profiles ?? DEFAULT_MAX_PROFILES,
         active: f.active !== false,
         created_at: f.created_date ?? '',
         family_members: (f.members ?? []).map((e) => ({ email: norm(e), role: owners.includes(norm(e)) ? ('owner' as const) : ('member' as const) })),

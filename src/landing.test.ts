@@ -32,6 +32,10 @@ describe('landing page', () => {
       challenges: CHALLENGES.length,
       maxPlayers: DEFAULT_MAX_PROFILES
     });
+    const { CONTENT } = await load();
+    const pricing = (l: string) => (CONTENT[l].pricing as { items: string[] }).items.join(' | ');
+    expect(pricing('he')).toContain(`עד ${DEFAULT_MAX_PROFILES} שחקנים`);
+    expect(pricing('en')).toContain(`Up to ${DEFAULT_MAX_PROFILES} players`);
   });
 
   it('Hebrew and English have the same structure', async () => {

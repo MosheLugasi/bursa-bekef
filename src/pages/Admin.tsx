@@ -7,7 +7,7 @@ import { totalValue } from '@/engine/trading';
 import { formatDateHe } from '@/engine/dates';
 import { leagueName, leagueOf } from '@/game/challenges';
 import { levelFor } from '@/game/xp';
-import { canAddProfile } from '@/state/cloud';
+import { playerLimitText, canAddProfile } from '@/state/cloud';
 import { AccountSection, AppAdminSection } from '@/ui/AccountAdmin';
 import { useUI } from '@/state/ui';
 import { AGE_LABEL, checkPin, NewPortfolioSheet, PinPad, ProfileForm } from '@/ui/forms';
@@ -268,7 +268,7 @@ export default function Admin() {
               if (edit === 'new') {
                 const q = canAddProfile();
                 if (!q.ok) {
-                  useUI.getState().toast({ emoji: '✋', text: `בחשבון הזה אפשר עד ${q.max} שחקנים. בקשו מהמנהל להגדיל את המכסה.`, kind: 'bad' });
+                  useUI.getState().toast({ emoji: '✋', text: playerLimitText(q.max), kind: 'bad' });
                   return;
                 }
                 const id = g.addProfile({ name: d.name, avatar: d.avatar, color: d.color, ageGroup: d.ageGroup, pin: d.pin.length === 4 ? d.pin : undefined });

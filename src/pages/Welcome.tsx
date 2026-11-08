@@ -5,7 +5,7 @@ import { useGame, useSession } from '@/state/store';
 import { levelFor } from '@/game/xp';
 import { checkPin, PinPad, ProfileForm } from '@/ui/forms';
 import { Sheet } from '@/ui/components';
-import { canAddProfile, cloudConfigured, useCloud } from '@/state/cloud';
+import { playerLimitText, canAddProfile, cloudConfigured, useCloud } from '@/state/cloud';
 import { useUI } from '@/state/ui';
 import { AccountBar, SignInScreen } from '@/ui/Account';
 import { LANDING_URL } from '@/ui/links';
@@ -15,7 +15,7 @@ import type { NewProfile } from '@/state/store';
 function addWithQuota(add: (p: NewProfile) => string, p: NewProfile): boolean {
   const q = canAddProfile();
   if (!q.ok) {
-    useUI.getState().toast({ emoji: '✋', text: `בחשבון הזה אפשר עד ${q.max} שחקנים. בקשו מהמנהל להגדיל את המכסה.`, kind: 'bad' });
+    useUI.getState().toast({ emoji: '✋', text: playerLimitText(q.max), kind: 'bad' });
     return false;
   }
   add(p);

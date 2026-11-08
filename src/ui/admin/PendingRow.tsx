@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { adminCreateFamily, adminDeleteRequest, type AdminFamily } from '@/state/cloud';
+import { DEFAULT_MAX_PROFILES } from '@/state/cloud';
 import { approveToFamily } from '@/state/admin';
 import { clsx } from '@/ui/format';
 import type { PendingPerson } from './useAdminData';
@@ -8,7 +9,7 @@ import type { PendingPerson } from './useAdminData';
 export function PendingRow({ p, families, onDone }: { p: PendingPerson; families: AdminFamily[]; onDone: (email: string) => void }) {
   const [mode, setMode] = useState<'new' | 'join'>('new');
   const [name, setName] = useState(p.name ? `משפחת ${p.name.split(' ').slice(-1)[0]}` : '');
-  const [max, setMax] = useState(4);
+  const [max, setMax] = useState(DEFAULT_MAX_PROFILES);
   const [fid, setFid] = useState(families[0]?.id ?? '');
   const [role, setRole] = useState<'owner' | 'member'>('member');
   const [busy, setBusy] = useState(false);
