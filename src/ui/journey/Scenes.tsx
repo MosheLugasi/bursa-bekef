@@ -7,7 +7,7 @@ import { Big, Label, delay, useTick } from './kit';
 import { PERCENT_SCENES } from './ScenesPercent';
 
 // ---------- תחנה 1: כסף
-function Piggy() {
+function SheepBank() {
   const t = useTick(1100, 100);
   return (
     <div className="h-full grid place-items-center relative">
@@ -16,7 +16,7 @@ function Piggy() {
           🪙
         </Big>
       ))}
-      <Big className="text-8xl anim-bob mt-10">🐷</Big>
+      <Big className="text-8xl anim-bob mt-10">🐑</Big>
       <Label className="absolute bottom-3">בקופה: <span className="num">{(t % 10) * 5 + 5} ₪</span></Label>
     </div>
   );
@@ -870,7 +870,7 @@ function Hourglass() {
 }
 
 const SCENES: Record<SceneId, () => ReactNode> = {
-  piggy: Piggy,
+  'sheep-bank': SheepBank,
   shrink: Shrink,
   tree: Tree,
   lemonade: Lemonade,

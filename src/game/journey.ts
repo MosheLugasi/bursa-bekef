@@ -2,7 +2,7 @@
 // הטקסטים תומכים ב-[[termId|תווית]] (קישור למילון) וב-**מודגש**.
 
 export type SceneId =
-  | 'piggy'
+  | 'sheep-bank'
   | 'shrink'
   | 'tree'
   | 'lemonade'
@@ -110,14 +110,14 @@ export const JOURNEY_CHAPTERS: { start: string; emoji: string; title: string; su
 export const JOURNEY: JourneyStation[] = [
   {
     id: 'money',
-    emoji: '🐷',
+    emoji: '🐑',
     title: 'הכסף שלנו',
     subtitle: 'חוסכים, ולמה בכלל להשקיע',
     from: '#fdf2f8',
     to: '#fce7f3',
-    sticker: { emoji: '🐷', name: 'חזרזיר החיסכון' },
+    sticker: { emoji: '🐑', name: 'כבשת החיסכון' },
     cards: [
-      { scene: 'piggy', title: 'קופת החיסכון', text: 'כשמקבלים דמי כיס או מתנה ביום ההולדת, אפשר לבזבז הכל מיד – או לשמור חלק בקופה. כסף ששומרים לאחר כך נקרא **חיסכון**.' },
+      { scene: 'sheep-bank', title: 'קופת החיסכון', text: 'כשמקבלים דמי כיס או מתנה ביום ההולדת, אפשר לבזבז הכל מיד – או לשמור חלק בקופה. כסף ששומרים לאחר כך נקרא **חיסכון**.' },
       { scene: 'shrink', title: 'אבל יש בעיה קטנה...', text: 'עם השנים דברים נהיים יקרים יותר: ארטיק שעלה פעם 5 ₪ עולה היום יותר. לכן כסף שרק שוכב בקופה ״מתכווץ״ קצת. לזה קוראים [[inflation|אינפלציה]].' },
       { scene: 'tree', title: 'לשתול את הכסף', text: 'משקיעים הם אנשים ששמים את הכסף במקום שבו הוא יכול לגדול – כמו לשתול זרע ולחכות שיצמח עץ. זה לוקח זמן, אבל זה שווה!' }
     ],

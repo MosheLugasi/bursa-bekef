@@ -1,3 +1,4 @@
+import { withoutPigs } from '@/content/noPig';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { loadFund, useMarket, type FundFile, type FundRow } from '@/data/loader';
@@ -329,7 +330,7 @@ export function Fundamentals({ id, date }: { id: string; date: ISODate }) {
         <details className="rounded-xl bg-slate-50 p-3 text-sm">
           <summary className="cursor-pointer font-semibold">🇺🇸 תיאור רשמי של החברה (באנגלית)</summary>
           <p className="mt-2 text-slate-700" dir="ltr">
-            {String(f.info.longBusinessSummary)}
+            {withoutPigs(String(f.info.longBusinessSummary))}
           </p>
         </details>
       )}

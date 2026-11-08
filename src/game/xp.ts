@@ -7,7 +7,7 @@ export interface Level {
 
 export const LEVELS: Level[] = [
   { level: 1, title: 'טירון', emoji: '🐣', min: 0 },
-  { level: 2, title: 'חוסך צעיר', emoji: '🐷', min: 100 },
+  { level: 2, title: 'חוסך צעיר', emoji: '🐑', min: 100 },
   { level: 3, title: 'סוחר מתחיל', emoji: '🌱', min: 250 },
   { level: 4, title: 'חוקר חברות', emoji: '🔎', min: 500 },
   { level: 5, title: 'משקיע צעיר', emoji: '📈', min: 800 },

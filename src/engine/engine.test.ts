@@ -318,3 +318,27 @@ describe('kids journey', () => {
     expect(JOURNEY.map((s) => s.id)).toContain('options');
   });
 });
+
+import { hasPig, withoutPigs } from '@/content/noPig';
+import { COMPANIES as ALL_COMPANIES, LESSONS as ALL_LESSONS, EVENTS as ALL_EVENTS } from '@/content';
+import { GLOSSARY as ALL_GLOSSARY } from '@/content/glossary';
+import { JOURNEY as ALL_JOURNEY } from '@/game/journey';
+import { LEVELS as ALL_LEVELS } from '@/game/xp';
+
+describe('no pigs in the game', () => {
+  it('detects pigs but not the verb "to return"', () => {
+    expect(hasPig('קופת חזיר')).toBe(true);
+    expect(hasPig('🐷')).toBe(true);
+    expect(hasPig('Peppa Pig and friends')).toBe(true);
+    expect(hasPig('הבנק מחזיר את הכסף, והלווה צריך להחזיר')).toBe(false);
+    expect(hasPig('Hasbro owns NERF')).toBe(false);
+  });
+  it('strips pigs from external summaries', () => {
+    const s = withoutPigs('Brands include NERF, and PEPPA PIG, as well as Star Wars. The company sells toys. Pork prices rose.');
+    expect(s).toBe('Brands include NERF, as well as Star Wars. The company sells toys.');
+  });
+  it('our own content has no pigs', () => {
+    const all = JSON.stringify([ALL_COMPANIES, ALL_LESSONS, ALL_EVENTS, ALL_GLOSSARY, ALL_JOURNEY, ALL_LEVELS]);
+    expect(hasPig(all)).toBe(false);
+  });
+});

@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { MarketData, type DetailFile, type Manifest, type OverviewFile } from '@/engine/market';
 import { SITE_ROOT } from '@/ui/links';
+import { hasPig } from '@/content/noPig';
 
 const LOCAL = `${SITE_ROOT}data/`;
 /**
@@ -164,6 +165,6 @@ export interface NewsItem {
 
 let newsPromise: Promise<NewsItem[]> | null = null;
 export function loadNews(): Promise<NewsItem[]> {
-  if (!newsPromise) newsPromise = getJSON<{ items: NewsItem[] }>('news.json').then((d) => d.items || []).catch(() => []);
+  if (!newsPromise) newsPromise = getJSON<{ items: NewsItem[] }>('news.json').then((d) => (d.items || []).filter((n) => !hasPig(JSON.stringify(n)))).catch(() => []);
   return newsPromise;
 }
