@@ -20,6 +20,7 @@ jobs:
         run: gh api repos/${{ github.repository }}/pages --jq '{cname, https_enforced, html_url, https_certificate}' || true
       - name: Site check
         run: |
+          set +e
           check() {
             local base="$1"; echo "################ $base"
             for p in "" en/ app/ data/manifest.json sitemap.xml robots.txt manifest.webmanifest sw.js og/og-he.jpg icon.svg; do
@@ -32,7 +33,7 @@ jobs:
               canon=$(grep -o '<link rel="canonical" href="[^"]*"' /tmp/page.html | sed 's/.*href="//;s/"$//')
               url=$(curl -s -o /dev/null -m 20 -L -w "%{url_effective}" "$base$p")
               for a in $js $css; do printf '  %-6s asset %s → ' "${p:-/}" "$a"; curl -s -o /dev/null -m 20 -w "%{http_code}\n" "$(python3 -c "import sys,urllib.parse as u;print(u.urljoin(sys.argv[1],sys.argv[2]))" "$url" "$a")"; done
-              [ -n "$canon" ] && echo "  ${p:-/} canonical: $canon"
+              if [ -n "$canon" ]; then echo "  ${p:-/} canonical: $canon"; fi
             done
           }
           check https://moshelugasi.github.io/bursa-bekef/
