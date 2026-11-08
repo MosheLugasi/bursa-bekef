@@ -105,7 +105,9 @@ export function renderLanding(lang, { siteUrl, shots = {} }) {
 /* משתמשים חוזרים (או קישורים ישנים כמו ‎/#/market) – ישר למשחק */
 (function () {
   try {
-    if (/[?&]home=1/.test(location.search)) return;
+    // הגיעו מהמשחק (״אתר שורי״) – נשארים באתר לאורך כל הביקור
+    if (/[?&]home=1/.test(location.search)) { sessionStorage.setItem('shori-home', '1'); return; }
+    if (sessionStorage.getItem('shori-home')) return;
     var h = location.hash || '';
     var deep = h.indexOf('#/') === 0;
     var g = localStorage.getItem('bursa-bekef-game') || '';

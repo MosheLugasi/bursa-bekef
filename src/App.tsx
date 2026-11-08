@@ -8,6 +8,7 @@ import { CoachModal, Celebrations, GlossarySheet, SummaryModal, Toasts } from '@
 import { ProgressBar } from '@/ui/components';
 import { CoachButton } from '@/ui/CoachFab';
 import { ShoriLogo } from '@/ui/Logo';
+import { LANDING_URL } from '@/ui/links';
 import { useUI } from '@/state/ui';
 import { clsx } from '@/ui/format';
 import { initCloud, useCloud } from '@/state/cloud';
@@ -116,6 +117,10 @@ function BottomNav() {
                 {m.label}
               </NavLink>
             ))}
+            <a href={LANDING_URL} className="flex flex-col items-center gap-1 rounded-xl p-3 hover:bg-slate-50 text-sm font-medium">
+              <span className="text-2xl">🌐</span>
+              אתר שורי
+            </a>
           </div>
         </div>
       )}
@@ -152,6 +157,10 @@ function SideNav() {
             {n.label}
           </NavLink>
         ))}
+        <a href={LANDING_URL} className="flex items-center gap-3 rounded-xl px-3 py-2.5 font-semibold text-slate-500 hover:bg-white border-t border-slate-200/70 mt-2 pt-3">
+          <span className="text-xl">🌐</span>
+          אתר שורי
+        </a>
       </nav>
     </aside>
   );

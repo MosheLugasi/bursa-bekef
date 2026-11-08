@@ -8,6 +8,7 @@ import { Sheet } from '@/ui/components';
 import { canAddProfile, cloudConfigured, useCloud } from '@/state/cloud';
 import { useUI } from '@/state/ui';
 import { AccountBar, SignInScreen } from '@/ui/Account';
+import { LANDING_URL } from '@/ui/links';
 import type { NewProfile } from '@/state/store';
 
 /** הוספת שחקן – בכפוף למכסת השחקנים של חשבון הענן */
@@ -163,10 +164,13 @@ export default function Welcome() {
       <div className="mt-6">
         <AccountBar />
       </div>
-      <div className="text-center mt-4">
+      <div className="text-center mt-4 flex flex-wrap justify-center gap-1">
         <Link to="/admin" className="btn-ghost">
           ⚙️ אזור ניהול (הורים)
         </Link>
+        <a href={LANDING_URL} className="btn-ghost">
+          🌐 אתר שורי
+        </a>
         {isAdmin && (
           <Link to="/accounts" className="btn-ghost">
             🛡️ חשבונות ומשתמשים

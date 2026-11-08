@@ -144,6 +144,11 @@ export function AccountBar() {
   return (
     <div className="text-center text-xs text-slate-500">
       ☁️ {cloud.family ? <strong>{cloud.family.name}</strong> : null} {cloud.email && <span dir="ltr">{cloud.email}</span>} {dot}
+      {cloud.email && (
+        <button className="underline underline-offset-2 ms-2 hover:text-slate-800" onClick={() => cloudSignOut()}>
+          התנתקות
+        </button>
+      )}
       {cloud.status === 'error' && cloud.error && <div className="text-down mt-1">{cloud.error}</div>}
     </div>
   );

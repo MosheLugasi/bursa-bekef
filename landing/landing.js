@@ -49,3 +49,18 @@ document.querySelectorAll('.qa').forEach((d) =>
     if (d.open) document.querySelectorAll('.qa[open]').forEach((o) => o !== d && (o.open = false));
   })
 );
+
+// שחקנים חוזרים שהגיעו לאתר מתוך המשחק: הכפתור העליון מחזיר למשחק
+try {
+  const g = localStorage.getItem('bursa-bekef-game') || '';
+  if (localStorage.getItem('base44_access_token') || /"profiles":\{"/.test(g)) {
+    const he = document.documentElement.lang === 'he';
+    const nav = document.querySelector('[data-cta=nav]');
+    if (nav) {
+      nav.setAttribute('href', nav.getAttribute('href').replace(/\?start=google$/, ''));
+      nav.textContent = he ? 'חזרה למשחק ←' : 'Back to the game →';
+    }
+  }
+} catch {
+  /* ignore */
+}
