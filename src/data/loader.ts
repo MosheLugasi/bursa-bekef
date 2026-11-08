@@ -1,14 +1,15 @@
 // טעינת נתוני השוק (קבצי JSON סטטיים שנוצרים ב-GitHub Actions)
 import { create } from 'zustand';
 import { MarketData, type DetailFile, type Manifest, type OverviewFile } from '@/engine/market';
+import { SITE_ROOT } from '@/ui/links';
 
-const LOCAL = `${import.meta.env.BASE_URL}data/`;
+const LOCAL = `${SITE_ROOT}data/`;
 /**
  * הנתונים נוצרים כל יום ב-GitHub Actions ומתפרסמים יחד עם האתר ב-GitHub Pages.
  * כשהאתר רץ במקום אחר (למשל בתצוגה המקדימה של Base44) ואין בו תיקיית data –
  * טוענים את אותם קבצים מהאתר ב-GitHub Pages (שמאפשר גישה מכל דומיין).
  */
-export const REMOTE_DATA = (import.meta.env.VITE_DATA_URL as string | undefined) || 'https://moshelugasi.github.io/bursa-bekef/data/';
+const REMOTES = [(import.meta.env.VITE_DATA_URL as string | undefined) || 'https://shori.co.il/data/', 'https://moshelugasi.github.io/bursa-bekef/data/'];
 let BASE = LOCAL;
 
 async function fetchJSON<T>(url: string): Promise<T> {
@@ -27,16 +28,20 @@ async function getJSON<T>(path: string): Promise<T> {
   return fetchJSON<T>(BASE + path);
 }
 
-/** בוחרים מקור נתונים: קודם מקומי, ואם אין – GitHub Pages */
+/** בוחרים מקור נתונים: קודם מקומי, ואם אין – האתר (shori.co.il, ואז הכתובת הישנה ב-GitHub Pages) */
 async function getManifest(): Promise<Manifest> {
-  try {
-    return await fetchJSON<Manifest>(LOCAL + 'manifest.json');
-  } catch (e) {
-    if (LOCAL === REMOTE_DATA || new URL(LOCAL, location.href).href === REMOTE_DATA) throw e;
-    const m = await fetchJSON<Manifest>(REMOTE_DATA + 'manifest.json');
-    BASE = REMOTE_DATA;
-    return m;
+  let err: unknown;
+  for (const base of [LOCAL, ...REMOTES]) {
+    if (base !== LOCAL && new URL(base).href === new URL(LOCAL, location.href).href) continue;
+    try {
+      const m = await fetchJSON<Manifest>(base + 'manifest.json');
+      BASE = base;
+      return m;
+    } catch (e) {
+      err ??= e;
+    }
   }
+  throw err;
 }
 
 interface MarketState {

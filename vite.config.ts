@@ -6,8 +6,10 @@ import base44 from '@base44/vite-plugin';
 import path from 'node:path';
 import shoriLanding from './landing/plugin.mjs';
 
-// BASE_PATH מוגדר ב-GitHub Actions לשם הריפו (למשל /bursa-bekef/) עבור GitHub Pages
-const base = process.env.BASE_PATH || '/';
+// נתיבים יחסיים ('./'): אותו build עובד גם בדומיין (shori.co.il/) וגם תחת תת-תיקייה (github.io/bursa-bekef/)
+const base = process.env.BASE_PATH || './';
+// הכתובת הקנונית של האתר (לגוגל, לשיתוף ולקישור לדף הנחיתה מתוך Base44)
+const siteUrl = (process.env.SITE_URL || 'https://shori.co.il/').replace(/\/?$/, '/');
 // ב-Base44 (התצוגה המקדימה בעורך והאתר שמתפרסם שם) הדף הראשי הוא המשחק עצמו:
 // העורך מחכה שהאפליקציה תיטען, והאירוח של Base44 מגיש את אותו index.html לכל כתובת. דפי הנחיתה – ב-GitHub Pages.
 const onBase44 = !process.env.GITHUB_ACTIONS && !!(process.env.MODAL_SANDBOX_ID || process.env.VITE_BASE44_APP_ID);
@@ -15,6 +17,7 @@ const onBase44 = !process.env.GITHUB_ACTIONS && !!(process.env.MODAL_SANDBOX_ID 
 export default defineConfig({
   base,
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
+  define: { 'import.meta.env.VITE_SITE_URL': JSON.stringify(siteUrl) },
   // שלושה דפים: דף נחיתה בעברית (/), באנגלית (/en/) והמשחק עצמו (/app/)
   // נתיבים יחסיים: ב-Base44 תיקיית הפרויקט היא ‎/app, ונתיב מלא כמו ‎/app/index.html מתפרש בטעות כ-app/index.html
   build: {
@@ -30,25 +33,10 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['icon.svg'],
-      manifest: {
-        name: 'שורי – משחק בורסה לכל המשפחה',
-        short_name: 'שורי',
-        description: 'משחק בורסה וחינוך פיננסי לילדים ולמשפחה – עם נתוני שוק אמיתיים',
-        lang: 'he',
-        dir: 'rtl',
-        theme_color: '#5b3df5',
-        background_color: '#faf8f3',
-        display: 'standalone',
-        start_url: 'app/',
-        scope: './',
-        icons: [
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
-          { src: 'brand/icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-        ]
-      },
+      // המניפסט (public/manifest.webmanifest) והרישום של ה-Service Worker (src/main.tsx) – ידניים,
+      // כדי שיעבדו עם נתיבים יחסיים מכל דף (/, /en/, /app/)
+      manifest: false,
+      injectRegister: false,
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,webp}'],
         globIgnores: ['og/**'],

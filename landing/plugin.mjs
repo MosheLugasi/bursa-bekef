@@ -2,7 +2,7 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { renderLanding, renderRobots, renderSitemap } from './render.mjs';
 
-const DEFAULT_SITE = 'https://moshelugasi.github.io/bursa-bekef/';
+const DEFAULT_SITE = 'https://shori.co.il/';
 
 /** gameAtRoot: ב-Base44 הדף הראשי (/) מציג את המשחק עצמו במקום דף הנחיתה */
 export default function shoriLanding({ gameAtRoot = false } = {}) {

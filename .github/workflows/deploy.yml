@@ -72,7 +72,8 @@ jobs:
         run: npm test
       - name: בניית האתר
         env:
-          BASE_PATH: /${{ github.event.repository.name }}/
+          # נתיבים יחסיים: אותו build עובד ב-shori.co.il וגם בכתובת הישנה ב-github.io
+          SITE_URL: ${{ vars.SITE_URL || 'https://shori.co.il/' }}
           # לא חובה: אפליקציית Base44 אחרת לחשבונות (ברירת המחדל מוגדרת בקוד, src/state/cloud.ts)
           VITE_BASE44_APP_ID: ${{ vars.BASE44_APP_ID }}
         run: npm run build

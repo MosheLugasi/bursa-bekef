@@ -84,8 +84,8 @@ export function renderLanding(lang, { siteUrl, shots = {} }) {
 <link rel="alternate" hreflang="x-default" href="${siteUrl}">
 <meta name="theme-color" content="#5b3df5">
 <meta name="color-scheme" content="light">
-<link rel="icon" type="image/svg+xml" href="/icon.svg">
-<link rel="apple-touch-icon" href="/brand/apple-touch-icon.png">
+<link rel="icon" type="image/svg+xml" href="${up}icon.svg">
+<link rel="apple-touch-icon" href="${up}brand/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Shori · שורי">
 <meta property="og:title" content="${esc(c.title)}">
