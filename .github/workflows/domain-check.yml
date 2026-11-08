@@ -1,0 +1,26 @@
+name: בדיקת דומיין
+on:
+  push:
+    branches: ['domaincheck/**']
+permissions:
+  contents: read
+  pages: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: DNS
+        run: |
+          for t in NS A AAAA CNAME TXT; do echo "== shori.co.il $t"; dig +short shori.co.il $t; done
+          for t in A CNAME; do echo "== www.shori.co.il $t"; dig +short www.shori.co.il $t; done
+          echo "== _github-pages-challenge"; dig +short TXT _github-pages-challenge-moshelugasi.shori.co.il
+      - name: HTTP
+        run: |
+          for u in http://shori.co.il/ https://shori.co.il/ https://www.shori.co.il/ https://shori.co.il/app/ https://shori.co.il/en/ https://moshelugasi.github.io/bursa-bekef/; do
+            echo "== $u"; curl -s -o /dev/null -m 15 -w "%{http_code} -> %{redirect_url}\n" "$u" || echo "fail"
+          done
+      - name: Pages settings
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/${{ github.repository }}/pages --jq '{cname, status, https_enforced, build_type, html_url, https_certificate}' || true
