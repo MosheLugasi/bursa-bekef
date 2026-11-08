@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>שורי – הדף לא נמצא</title>
+<script>
+/* GitHub Pages מגיש את הקובץ הזה לכל כתובת שלא קיימת.
+   אם הגענו לכאן עם טוקן התחברות (למשל אחרי Google דרך Base44) – ממשיכים ישר למשחק עם הטוקן. */
+(function () {
+  try {
+    var root = /github\.io$/.test(location.hostname) ? '/bursa-bekef/' : '/';
+    var q = new URLSearchParams(location.search);
+    var h = new URLSearchParams((location.hash || '').replace(/^#\/?\??/, ''));
+    var t = q.get('access_token') || h.get('access_token') || q.get('token') || h.get('token');
+    if (t) { location.replace(root + 'app/?access_token=' + encodeURIComponent(t)); return; }
+    window.__root = root;
+  } catch (e) {}
+})();
+</script>
+<style>
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #faf8f3; color: #0d1022;
+         font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif; }
+  main { max-width: 420px; padding: 32px 24px; text-align: center; }
+  h1 { font-size: 28px; margin: 16px 0 8px; }
+  p { color: #475569; line-height: 1.6; margin: 0 0 20px; }
+  .btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  a.btn { display: inline-block; padding: 12px 20px; border-radius: 14px; font-weight: 700; text-decoration: none; }
+  .primary { background: #5b3df5; color: #fff; }
+  .soft { background: #ede9fe; color: #3b22c9; }
+  .path { margin-top: 24px; font-size: 12px; color: #94a3b8; direction: ltr; word-break: break-all; }
+</style>
+</head>
+<body>
+<main>
+  <svg width="88" height="88" viewBox="0 0 64 64" aria-hidden="true">
+    <defs>
+      <linearGradient id="sg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7B5CFF"/><stop offset="1" stop-color="#4A2BD9"/></linearGradient>
+      <linearGradient id="hg" x1="0" y1="1" x2="0.4" y2="0"><stop offset="0" stop-color="#F0A030"/><stop offset="1" stop-color="#FFD66E"/></linearGradient>
+    </defs>
+    <rect width="64" height="64" rx="18" fill="url(#sg)"/>
+    <path d="M23 28 C16 27 12.5 22.5 12 15" fill="none" stroke="url(#hg)" stroke-width="5.2" stroke-linecap="round"/>
+    <path d="M41 28 C47 26 50 21 52.5 12.5" fill="none" stroke="url(#hg)" stroke-width="5.2" stroke-linecap="round"/>
+    <path d="M47.6 15.2 L53 10.6 L56.2 16.9" fill="none" stroke="url(#hg)" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <ellipse cx="17.6" cy="33" rx="4.2" ry="2.6" transform="rotate(-18 17.6 33)" fill="#F3DDBA"/>
+    <ellipse cx="46.4" cy="33" rx="4.2" ry="2.6" transform="rotate(18 46.4 33)" fill="#F3DDBA"/>
+    <rect x="19.5" y="22.5" width="25" height="28.5" rx="12.5" fill="#FFF8EC"/>
+    <rect x="22.5" y="38.2" width="19" height="11" rx="5.5" fill="#F3DDBA"/>
+    <circle cx="28" cy="43.7" r="1.65" fill="#3A2A1A"/><circle cx="36" cy="43.7" r="1.65" fill="#3A2A1A"/>
+    <circle cx="27.2" cy="31.6" r="2.4" fill="#16132B"/><circle cx="36.8" cy="31.6" r="2.4" fill="#16132B"/>
+  </svg>
+  <h1>אופס, הדף לא נמצא</h1>
+  <p>שורי חיפש בכל הבורסה ולא מצא את הדף הזה.<br>אפשר לחזור למשחק או לדף הבית.</p>
+  <div class="btns">
+    <a class="btn primary" id="to-app" href="/app/">🎮 למשחק</a>
+    <a class="btn soft" id="to-home" href="/?home=1">🏠 לדף הבית</a>
+  </div>
+  <div class="path" id="path"></div>
+</main>
+<script>
+(function () {
+  var root = window.__root || '/';
+  document.getElementById('to-app').href = root + 'app/';
+  document.getElementById('to-home').href = root + '?home=1';
+  // מציגים את הכתובת שביקשו (בלי ערכי פרמטרים) – עוזר לדווח על קישור שבור
+  var keys = []; new URLSearchParams(location.search).forEach(function (_, k) { keys.push(k); });
+  document.getElementById('path').textContent = location.pathname + (keys.length ? '?' + keys.join('&') : '');
+})();
+</script>
+</body>
+</html>

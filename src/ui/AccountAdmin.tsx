@@ -42,10 +42,12 @@ const STATUS: Record<string, string> = {
   error: '🔴 שגיאה'
 };
 
+/** פרטי התשתית – רק למנהל המשחק, לא להורים ולא לשחקנים */
 function TechInfo() {
   const cfg = loadConfig();
+  const isAdmin = useCloud((s) => s.isAdmin);
   const [appId, setAppId] = useState(cfg?.appId ?? '');
-  if (!cfg) return null;
+  if (!cfg || !isAdmin) return null;
   return (
     <details className="mt-3 text-sm">
       <summary className="cursor-pointer font-semibold">🛠️ מידע טכני (Base44)</summary>

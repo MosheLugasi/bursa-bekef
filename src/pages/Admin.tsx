@@ -7,7 +7,7 @@ import { totalValue } from '@/engine/trading';
 import { formatDateHe } from '@/engine/dates';
 import { leagueName, leagueOf } from '@/game/challenges';
 import { levelFor } from '@/game/xp';
-import { playerLimitText, canAddProfile } from '@/state/cloud';
+import { playerLimitText, canAddProfile, useCloud } from '@/state/cloud';
 import { AccountSection, AppAdminSection } from '@/ui/AccountAdmin';
 import { useUI } from '@/state/ui';
 import { AGE_LABEL, checkPin, NewPortfolioSheet, PinPad, ProfileForm } from '@/ui/forms';
@@ -27,6 +27,7 @@ export default function Admin() {
   const g = useGame();
   const market = useMarket();
   const session = useSession();
+  const isAppAdmin = useCloud((c) => c.isAdmin);
   const nav = useNavigate();
   const [pinErr, setPinErr] = useState<string>();
   const [edit, setEdit] = useState<Profile | 'new' | null>(null);
@@ -205,12 +206,16 @@ export default function Admin() {
           <div>
             מעודכן עד: <strong>{formatDateHe(m.asOf, { weekday: true })}</strong>
           </div>
-          <div>נוצר: {new Date(m.generatedAt).toLocaleString('he-IL')}</div>
-          <div>
-            מקור: {m.synthetic ? <strong className="text-amber-700">⚠️ נתוני פיתוח סינתטיים</strong> : 'Yahoo Finance + FRED (נתוני מסחר אמיתיים, עדכון יומי אוטומטי ב-GitHub Actions)'}
-          </div>
+          {m.synthetic ? <strong className="text-amber-700">⚠️ נתוני פיתוח סינתטיים</strong> : <div>מחירי מסחר אמיתיים מהבורסות, מתעדכנים אוטומטית אחרי כל יום מסחר.</div>}
           <div>נכסים: {m.instruments.length}</div>
-          {m.failed && m.failed.length > 0 && <div className="text-amber-700">לא התקבלו נתונים עבור: {m.failed.join(', ')}</div>}
+          {isAppAdmin && (
+            <div className="mt-2 rounded-lg bg-slate-50 p-2 text-xs text-slate-600 space-y-0.5">
+              <div className="font-semibold">🛡️ למנהל המשחק בלבד</div>
+              <div>נוצר: {new Date(m.generatedAt).toLocaleString('he-IL')}</div>
+              <div>מקור: Yahoo Finance + FRED (עדכון יומי ב-GitHub Actions)</div>
+              {m.failed && m.failed.length > 0 && <div className="text-amber-700">לא התקבלו נתונים עבור: {m.failed.join(', ')}</div>}
+            </div>
+          )}
         </div>
       </Card>
 

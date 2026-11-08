@@ -105,6 +105,8 @@ export function renderLanding(lang, { siteUrl, shots = {} }) {
 /* משתמשים חוזרים (או קישורים ישנים כמו ‎/#/market) – ישר למשחק */
 (function () {
   try {
+    // חזרו מהתחברות עם Google והטוקן נחת בדף הבית – ממשיכים איתו למשחק
+    if (/[?&]access_token=/.test(location.search)) { location.replace('${app}' + location.search); return; }
     // הגיעו מהמשחק (״אתר שורי״) – נשארים באתר לאורך כל הביקור
     if (/[?&]home=1/.test(location.search)) { sessionStorage.setItem('shori-home', '1'); return; }
     if (sessionStorage.getItem('shori-home')) return;
