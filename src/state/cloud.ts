@@ -101,8 +101,8 @@ export async function getClient(): Promise<Base44Client | null> {
   return client;
 }
 
-const norm = (e: string) => e.trim().toLowerCase();
-const errText = (e: unknown): string => {
+export const norm = (e: string) => e.trim().toLowerCase();
+export const errText = (e: unknown): string => {
   if (e && typeof e === 'object') {
     const o = e as { message?: string; data?: { message?: string }; response?: { data?: { message?: string } } };
     return o.data?.message ?? o.response?.data?.message ?? o.message ?? String(e);

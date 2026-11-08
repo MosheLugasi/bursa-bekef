@@ -100,6 +100,7 @@ export default function Welcome() {
   const [wizard, setWizard] = useState(false);
   const cloudStatus = useCloud((c) => c.status);
   const cloudFamily = useCloud((c) => c.family);
+  const isAdmin = useCloud((c) => c.isAdmin);
   const firstSyncDone = useCloud((c) => !!c.lastSync);
   const [guest, setGuest] = useState(() => localStorage.getItem('bursa-bekef-guest') === '1');
 
@@ -165,6 +166,11 @@ export default function Welcome() {
         <Link to="/admin" className="btn-ghost">
           ⚙️ אזור ניהול (הורים)
         </Link>
+        {isAdmin && (
+          <Link to="/accounts" className="btn-ghost">
+            🛡️ חשבונות ומשתמשים
+          </Link>
+        )}
       </div>
       {pinFor && (
         <PinPad

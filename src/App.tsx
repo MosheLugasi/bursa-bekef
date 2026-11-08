@@ -9,7 +9,8 @@ import { ProgressBar } from '@/ui/components';
 import { CoachButton } from '@/ui/CoachFab';
 import { useUI } from '@/state/ui';
 import { clsx } from '@/ui/format';
-import { initCloud } from '@/state/cloud';
+import { initCloud, useCloud } from '@/state/cloud';
+import Accounts from '@/pages/Accounts';
 import { CloudGate } from '@/ui/Account';
 import Welcome from '@/pages/Welcome';
 import Home from '@/pages/Home';
@@ -45,6 +46,12 @@ const MORE = [
   { to: '/glossary', emoji: '📖', label: 'מילון מושגים' },
   { to: '/admin', emoji: '⚙️', label: 'ניהול' }
 ];
+const ACCOUNTS_LINK = { to: '/accounts', emoji: '🛡️', label: 'חשבונות ומשתמשים' };
+/** קישור לניהול החשבונות – רק למנהל המשחק */
+function useMore() {
+  const isAdmin = useCloud((s) => s.isAdmin);
+  return isAdmin ? [...MORE, ACCOUNTS_LINK] : MORE;
+}
 
 function Header() {
   const profile = useCurrentProfile();
@@ -94,6 +101,7 @@ function Header() {
 
 function BottomNav() {
   const [more, setMore] = useState(false);
+  const moreItems = useMore();
   const loc = useLocation();
   useEffect(() => setMore(false), [loc.pathname]);
   return (
@@ -101,7 +109,7 @@ function BottomNav() {
       {more && (
         <div className="fixed inset-0 z-40 bg-slate-900/30 md:hidden" onClick={() => setMore(false)}>
           <div className="absolute bottom-[68px] inset-x-2 bg-white rounded-2xl shadow-xl p-2 grid grid-cols-3 gap-1 safe-bottom" onClick={(e) => e.stopPropagation()}>
-            {MORE.map((m) => (
+            {moreItems.map((m) => (
               <NavLink key={m.to} to={m.to} className="flex flex-col items-center gap-1 rounded-xl p-3 hover:bg-slate-50 text-sm font-medium">
                 <span className="text-2xl">{m.emoji}</span>
                 {m.label}
@@ -129,10 +137,11 @@ function BottomNav() {
 }
 
 function SideNav() {
+  const moreItems = useMore();
   return (
     <aside className="hidden md:block w-52 shrink-0">
       <nav className="sticky top-16 space-y-1 py-4">
-        {[...NAV, ...MORE].map((n) => (
+        {[...NAV, ...moreItems].map((n) => (
           <NavLink
             key={n.to}
             to={n.to}
@@ -249,6 +258,7 @@ export default function App() {
         <Route path="/predict" element={<RequireProfile><Predict /></RequireProfile>} />
         <Route path="/news" element={<RequireProfile><News /></RequireProfile>} />
         <Route path="/admin" element={profileId ? <Shell><Admin /></Shell> : <Admin />} />
+        <Route path="/accounts" element={profileId ? <Shell><Accounts /></Shell> : <Accounts />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>

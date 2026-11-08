@@ -66,8 +66,8 @@ export function SignInScreen({ onGuest }: { onGuest: () => void }) {
               </p>
             </div>
             {cloud.isAdmin && (
-              <a href="#/admin" className="btn-primary w-full text-center block">
-                🛡️ אתם מנהלי המשחק – לניהול חשבונות (צרו משפחה לעצמכם)
+              <a href="#/accounts" className="btn-primary w-full text-center block">
+                🛡️ אתם מנהלי המשחק – לניהול חשבונות ומשתמשים
               </a>
             )}
             {cloud.isAdmin ? null : cloud.requested ? (
@@ -128,7 +128,7 @@ export function AccountBar() {
           ⏳ החשבון <span dir="ltr">{cloud.email}</span> עוד לא שייך למשפחה.
         </div>
         {cloud.isAdmin ? (
-          <a href="#/admin" className="btn-primary inline-block">
+          <a href="#/accounts" className="btn-primary inline-block">
             🛡️ לניהול חשבונות
           </a>
         ) : cloud.requested ? (
