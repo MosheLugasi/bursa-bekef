@@ -7,6 +7,7 @@ import { levelFor } from '@/game/xp';
 import { CoachModal, Celebrations, GlossarySheet, SummaryModal, Toasts } from '@/ui/overlays';
 import { ProgressBar } from '@/ui/components';
 import { CoachButton } from '@/ui/CoachFab';
+import { ShoriLogo } from '@/ui/Logo';
 import { useUI } from '@/state/ui';
 import { clsx } from '@/ui/format';
 import { initCloud, useCloud } from '@/state/cloud';
@@ -63,7 +64,7 @@ function Header() {
     <header className="sticky top-0 z-40 bg-white/85 backdrop-blur border-b border-slate-100">
       <div className="max-w-6xl mx-auto flex items-center gap-3 px-3 py-2">
         <button onClick={() => nav('/home')} className="font-extrabold text-lg text-brand-700 whitespace-nowrap">
-          🐂 בורסה בכיף
+          <ShoriLogo size={30} />
         </button>
         {portfolio && (
           <button onClick={() => nav('/portfolio')} className="hidden sm:flex chip max-w-48 truncate">

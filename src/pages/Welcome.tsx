@@ -1,3 +1,4 @@
+import { ShoriMark } from '@/ui/Logo';
 import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useGame, useSession } from '@/state/store';
@@ -32,8 +33,8 @@ function Setup({ onStart, onDone }: { onStart: () => void; onDone: () => void })
   return (
     <div className="max-w-lg mx-auto p-4 pt-10">
       <div className="text-center mb-6">
-        <div className="text-7xl">🐂📈</div>
-        <h1 className="text-3xl font-extrabold mt-2 text-brand-700">בורסה בכיף</h1>
+        <div className="flex justify-center anim-float"><ShoriMark size={88} className="drop-shadow-lg" /></div>
+        <h1 className="text-3xl font-extrabold mt-2 text-ink">שורי</h1>
         <p className="text-slate-600 mt-1">משחק מסחר בבורסה לכל המשפחה – עם נתונים אמיתיים מישראל ומארה״ב</p>
       </div>
       {step === 0 && (
@@ -127,8 +128,8 @@ export default function Welcome() {
   return (
     <div className="max-w-3xl mx-auto p-4 pt-10">
       <div className="text-center mb-8">
-        <div className="text-6xl">🐂</div>
-        <h1 className="text-3xl font-extrabold mt-1 text-brand-700">בורסה בכיף</h1>
+        <div className="flex justify-center anim-float"><ShoriMark size={72} className="drop-shadow-lg" /></div>
+        <h1 className="text-3xl font-extrabold mt-1 text-ink">שורי</h1>
         <p className="text-slate-600">{settings.familyName}</p>
         <h2 className="text-2xl font-bold mt-6">מי משחק עכשיו?</h2>
       </div>

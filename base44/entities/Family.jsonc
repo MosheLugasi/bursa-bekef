@@ -1,5 +1,6 @@
-// משפחה = חשבון. רק מנהל המשחק (role: admin) יוצר משפחות וקובע מכסת שחקנים.
-// members – כתובות Gmail (באותיות קטנות) שמותר להן להיכנס; owners – מי שיכול לצרף בני משפחה נוספים.
+// משפחה = חשבון. הרשמה פתוחה: כל משתמש מחובר יכול לפתוח משפחה שהוא חבר בה (היוצר הוא הבעלים).
+// רק מנהל המשחק (role: admin) קובע מכסת שחקנים, משבית משפחות או ממנה בעלים נוספים.
+// members – כתובות Gmail (באותיות קטנות) שמותר להן להיכנס; owners – בעלים נוספים שהמנהל מינה.
 {
   "name": "Family",
   "type": "object",
@@ -24,9 +25,9 @@
   },
   "required": ["name"],
   "rls": {
-    "read": { "$or": [{ "data.members": "{{user.email}}" }, { "user_condition": { "role": "admin" } }] },
-    "create": { "user_condition": { "role": "admin" } },
-    "update": { "$or": [{ "data.owners": { "$in": ["{{user.email}}"] } }, { "user_condition": { "role": "admin" } }] },
+    "read": { "$or": [{ "data.members": "{{user.email}}" }, { "created_by_id": "{{user.id}}" }, { "user_condition": { "role": "admin" } }] },
+    "create": { "$or": [{ "user_condition": { "role": "admin" } }, { "data.members": { "$in": ["{{user.email}}"] } }] },
+    "update": { "$or": [{ "created_by_id": "{{user.id}}" }, { "data.owners": { "$in": ["{{user.email}}"] } }, { "user_condition": { "role": "admin" } }] },
     "delete": { "user_condition": { "role": "admin" } }
   }
 }

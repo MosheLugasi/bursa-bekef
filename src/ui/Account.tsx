@@ -1,4 +1,5 @@
 // רכיבי חשבון: כפתור Google, מסך התחברות, בחירת משפחה וחיבור נתוני המכשיר לחשבון.
+import { ShoriMark } from './Logo';
 import { useMemo, useState } from 'react';
 import { useGame } from '@/state/store';
 import { cloudConfigured, cloudSignOut, linkFamily, refreshAccount, requestAccess, selectFamily, signInWithGoogle, useCloud } from '@/state/cloud';
@@ -46,8 +47,8 @@ export function SignInScreen({ onGuest }: { onGuest: () => void }) {
   return (
     <div className="max-w-md mx-auto p-4 pt-10">
       <div className="text-center mb-6">
-        <div className="text-7xl anim-bob">🐂</div>
-        <h1 className="text-3xl font-extrabold mt-2 text-brand-700">בורסה בכיף</h1>
+        <div className="flex justify-center anim-float"><ShoriMark size={88} className="drop-shadow-lg" /></div>
+        <h1 className="text-3xl font-extrabold mt-2 text-ink">שורי</h1>
         <p className="text-slate-600 mt-1">משחק מסחר בבורסה לכל המשפחה – עם נתונים אמיתיים מישראל ומארה״ב</p>
       </div>
       <div className="card p-5 space-y-4">

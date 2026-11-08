@@ -9,7 +9,7 @@ import { Segmented, Sheet } from './components';
 import { clsx, fmtMoney } from './format';
 
 export const AVATARS = ['🦁', '🐯', '🐻', '🐼', '🦊', '🐸', '🐵', '🦄', '🐲', '🐙', '🦖', '🐧', '🐨', '🐰', '🦉', '🐬', '🚀', '⚽', '🎸', '👑', '🧙', '🦸', '👩', '👨', '👧', '👦', '👵', '👴'];
-export const COLORS = ['#4f46e5', '#2a78d6', '#1baf7a', '#eb6834', '#e87ba4', '#6250d6', '#eda100', '#e34948', '#0f766e', '#475569'];
+export const COLORS = ['#5b3df5', '#2a78d6', '#1baf7a', '#eb6834', '#e87ba4', '#6250d6', '#eda100', '#e34948', '#0f766e', '#475569'];
 export const PORTFOLIO_EMOJIS = ['💼', '🚀', '🐂', '💎', '🌱', '🏆', '🦄', '🔥', '🌍', '🎯', '🍀', '⭐'];
 
 export const AGE_LABEL: Record<AgeGroup, string> = { kid: '🧒 ילד/ה (7-10)', teen: '🧑 נער/ה (11-15)', adult: '🧔 מבוגר/ת' };
@@ -153,7 +153,7 @@ export function NewPortfolioSheet({ ownerId, onClose, stay }: { ownerId: string;
       ownerId,
       name: name || (mode === 'live' ? `התיק של ${owner?.name ?? ''}` : `${ch.emoji} ${ch.title}`),
       emoji,
-      color: owner?.color ?? '#4f46e5',
+      color: owner?.color ?? '#5b3df5',
       mode,
       challengeId: mode === 'history' ? challengeId : undefined,
       startDate: start,

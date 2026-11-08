@@ -8,6 +8,11 @@ import type { Base44Client } from '@base44/sdk';
 import { DEFAULT_APP_SETTINGS, useGame } from './store';
 import type { GameState } from './types';
 
+/** הרשמה פתוחה: מי שמתחבר בפעם הראשונה מקבל משפחה חדשה מיד (בלי אישור מנהל). המנהל עדיין יכול להשבית/למחוק ולשנות מכסות. */
+export const OPEN_SIGNUP = true;
+/** מכסת שחקנים למשפחה כשהמנהל לא קבע אחרת (התוכנית החינמית) */
+export const DEFAULT_MAX_PROFILES = 6;
+
 /** האפליקציה ב-Base44 (מזהה ציבורי – לא סוד) */
 export const DEFAULT_BASE44 = { appId: '6aefa4296b5b048c0f5fb91f', appUrl: 'https://base44.app' };
 
@@ -118,11 +123,13 @@ interface FamilyRecord {
   members?: string[];
   owners?: string[];
   created_date?: string;
+  created_by?: string;
 }
 function toFamily(r: FamilyRecord, email: string): Family {
   const members = (r.members ?? []).map(norm);
   const owners = (r.owners ?? []).map(norm);
-  return { id: r.id, name: r.name, max_profiles: r.max_profiles ?? 4, active: r.active !== false, members, owners, role: owners.includes(email) ? 'owner' : 'member' };
+  const owner = owners.includes(email) || (!!r.created_by && norm(r.created_by) === email);
+  return { id: r.id, name: r.name, max_profiles: r.max_profiles ?? DEFAULT_MAX_PROFILES, active: r.active !== false, members, owners, role: owner ? 'owner' : 'member' };
 }
 
 interface DocRecord {
@@ -298,7 +305,16 @@ async function loadAccount(): Promise<void> {
   const b = await getClient();
   if (!b) return setCloud({ status: 'off' });
   const signedOut = () => setCloud({ status: 'signed-out', email: undefined, name: undefined, isAdmin: false, families: [], family: undefined });
-  if (!b.auth.hasToken()) return signedOut();
+  if (!b.auth.hasToken()) {
+    signedOut();
+    // הגיעו מדף הנחיתה עם ״מתחילים עם Google״ – מעבירים ישר להתחברות
+    if (sessionStorage.getItem('shori-start') === 'google') {
+      sessionStorage.removeItem('shori-start');
+      await signInWithGoogle();
+    }
+    return;
+  }
+  sessionStorage.removeItem('shori-start');
   let me: { email: string; full_name: string | null; role?: string };
   try {
     me = (await b.auth.me()) as typeof me;
@@ -309,8 +325,19 @@ async function loadAccount(): Promise<void> {
   setCloud({ email, name: me.full_name ?? undefined, isAdmin: me.role === 'admin' });
   try {
     // ההרשאות בשרת כבר מחזירות רק משפחות שאני חבר בהן (מנהל רואה הכל) – מסננים שוב בצד הלקוח
-    const recs = (await b.entities.Family.list('-created_date', 1000)) as FamilyRecord[];
-    const families = recs.map((r) => toFamily(r, email)).filter((f) => f.active && f.members.includes(email));
+    const fetchFamilies = async () =>
+      ((await b.entities.Family.list('-created_date', 1000)) as FamilyRecord[]).map((r) => toFamily(r, email)).filter((f) => f.active && f.members.includes(email));
+    let families = await fetchFamilies();
+    // הרשמה פתוחה: כניסה ראשונה – פותחים משפחה חדשה אוטומטית
+    if (!families.length && OPEN_SIGNUP) {
+      try {
+        const last = (me.full_name ?? '').trim().split(/\s+/).filter(Boolean).pop();
+        await b.entities.Family.create({ name: last ? `משפחת ${last}` : 'המשפחה שלי', members: [email] });
+        families = await fetchFamilies();
+      } catch {
+        /* אם השרת לא מאפשר – חוזרים לבקשת גישה מהמנהל */
+      }
+    }
     setCloud({ families });
     if (!families.length) {
       const req = (await b.entities.AccessRequest.filter({ email })) as unknown[];

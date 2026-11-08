@@ -2,12 +2,20 @@
 
 @theme {
   --font-sans: "Rubik Variable", "Rubik", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
+  /* מיתוג ״שורי״: סגול (ראשי), זהב (קרני השור), שנהב ולילה */
+  --color-brand-50: #f3f0ff;
+  --color-brand-100: #e9e4ff;
+  --color-brand-200: #d4cbff;
+  --color-brand-300: #b3a4ff;
+  --color-brand-400: #8f78ff;
+  --color-brand-500: #7257fb;
+  --color-brand-600: #5b3df5;
+  --color-brand-700: #4a2ed6;
+  --color-brand-800: #3b25a8;
+  --color-gold: #f5b83d;
+  --color-gold-soft: #fff3d6;
+  --color-ink: #0d1022;
+  --color-ivory: #faf8f3;
   --color-up: #0a7a0a;      /* טקסט רווח (כהה מספיק לניגודיות) */
   --color-up-bg: #e7f7e7;
   --color-down: #c22f2f;    /* טקסט הפסד */
@@ -25,7 +33,7 @@
 html, body, #root { min-height: 100%; }
 html, body { overflow-x: clip; }
 body {
-  background: linear-gradient(180deg, #f5f3ff 0%, #f8fafc 40%);
+  background: linear-gradient(180deg, #f1edff 0%, #faf8f3 42%);
   color: #0f172a;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
