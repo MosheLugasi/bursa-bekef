@@ -8,24 +8,24 @@ import shoriLanding from './landing/plugin.mjs';
 
 // BASE_PATH מוגדר ב-GitHub Actions לשם הריפו (למשל /bursa-bekef/) עבור GitHub Pages
 const base = process.env.BASE_PATH || '/';
+// ב-Base44 (התצוגה המקדימה בעורך והאתר שמתפרסם שם) הדף הראשי הוא המשחק עצמו:
+// העורך מחכה שהאפליקציה תיטען, והאירוח של Base44 מגיש את אותו index.html לכל כתובת. דפי הנחיתה – ב-GitHub Pages.
+const onBase44 = !process.env.GITHUB_ACTIONS && !!(process.env.MODAL_SANDBOX_ID || process.env.VITE_BASE44_APP_ID);
 
 export default defineConfig({
   base,
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
   // שלושה דפים: דף נחיתה בעברית (/), באנגלית (/en/) והמשחק עצמו (/app/)
+  // נתיבים יחסיים: ב-Base44 תיקיית הפרויקט היא ‎/app, ונתיב מלא כמו ‎/app/index.html מתפרש בטעות כ-app/index.html
   build: {
     rollupOptions: {
-      input: {
-        main: path.resolve(import.meta.dirname, 'index.html'),
-        en: path.resolve(import.meta.dirname, 'en/index.html'),
-        app: path.resolve(import.meta.dirname, 'app/index.html')
-      }
+      input: onBase44 ? { main: './index.html' } : { main: './index.html', en: './en/index.html', app: './app/index.html' }
     }
   },
   plugins: [
     // נדרש לתצוגה המקדימה בעורך של Base44 (לא משפיע על האתר ב-GitHub Pages)
     base44({ hmrNotifier: true, navigationNotifier: true, visualEditAgent: true }),
-    shoriLanding(),
+    shoriLanding({ gameAtRoot: onBase44 }),
     react(),
     tailwindcss(),
     VitePWA({
