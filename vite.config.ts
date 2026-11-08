@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import base44 from '@base44/vite-plugin';
 import path from 'node:path';
 
 // BASE_PATH מוגדר ב-GitHub Actions לשם הריפו (למשל /bursa-bekef/) עבור GitHub Pages
@@ -11,6 +12,8 @@ export default defineConfig({
   base,
   resolve: { alias: { '@': path.resolve(import.meta.dirname, 'src') } },
   plugins: [
+    // נדרש לתצוגה המקדימה בעורך של Base44 (לא משפיע על האתר ב-GitHub Pages)
+    base44({ hmrNotifier: true, navigationNotifier: true, visualEditAgent: true }),
     react(),
     tailwindcss(),
     VitePWA({
