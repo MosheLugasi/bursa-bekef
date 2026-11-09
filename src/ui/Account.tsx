@@ -187,7 +187,7 @@ export function CloudGate() {
       <Sheet open onClose={() => undefined} title="🔗 חיבור המכשיר לחשבון">
         <div className="space-y-3">
           <p className="text-sm">
-            התחברתם לחשבון <strong>{cloud.family.name}</strong>. במכשיר הזה כבר יש {profiles.length} שחקנים ({profiles.map((p) => p.avatar + ' ' + p.name).join(', ')}). מה לעשות איתם?
+            התחברתם לחשבון <strong>{cloud.family.name}</strong>. במכשיר הזה שיחקו בלי חשבון {profiles.length} שחקנים ({profiles.map((p) => p.avatar + ' ' + p.name).join(', ')}). לצרף אותם לחשבון שלכם?
           </p>
           <button
             disabled={busy}
@@ -198,8 +198,8 @@ export function CloudGate() {
               setBusy(false);
             }}
           >
-            ⬆️ להעלות אותם לחשבון
-            <span className="block text-xs font-normal opacity-90">מומלץ אם אלה השחקנים של המשפחה שלכם – הם יישמרו בענן ויופיעו בכל מכשיר</span>
+            ⬆️ כן, לצרף אותם לחשבון
+            <span className="block text-xs font-normal opacity-90">אם אלה השחקנים שלכם – ההתקדמות שלהם תישמר בחשבון ותופיע בכל מכשיר</span>
           </button>
           {!confirmReplace ? (
             <button className="btn-soft w-full text-right" onClick={() => setConfirmReplace(true)}>

@@ -5,7 +5,7 @@
 // בלי התחברות המשחק עובד כמו קודם – נשמר רק במכשיר.
 import { create } from 'zustand';
 import type { Base44Client } from '@base44/sdk';
-import { DEFAULT_APP_SETTINGS, useGame } from './store';
+import { DEFAULT_APP_SETTINGS, useGame, useSession } from './store';
 import type { GameState } from './types';
 
 /** הרשמה פתוחה: מי שמתחבר בפעם הראשונה מקבל משפחה חדשה מיד (בלי אישור מנהל). המנהל עדיין יכול להשבית/למחוק ולשנות מכסות. */
@@ -356,20 +356,38 @@ async function loadAccount(): Promise<void> {
   }
 }
 
-/** בחירת משפחה במכשיר. אם יש במכשיר שחקנים שלא שייכים אליה – שואלים מה לעשות (status: link). */
+/**
+ * מה עושים עם הנתונים שבמכשיר כשנכנסים לחשבון משפחה (פונקציה טהורה – לבדיקות):
+ *  sync    – הנתונים כבר של החשבון הזה
+ *  ask     – שחקנים ששיחקו במכשיר בלי חשבון: שואלים אם להעלות אותם
+ *  replace – אין נתונים, או שהם של חשבון אחר: טוענים רק את החשבון הזה (כל חשבון Google נפרד – לא מערבבים)
+ */
+export function deviceDataAction(linked: string | null, familyId: string, hasLocal: boolean): 'sync' | 'ask' | 'replace' {
+  if (linked === familyId) return 'sync';
+  if (!linked && hasLocal) return 'ask';
+  return 'replace';
+}
+
+/** בחירת משפחה במכשיר */
 export async function selectFamily(id: string): Promise<void> {
   const fam = useCloud.getState().families.find((f) => f.id === id);
   if (!fam) return;
   localStorage.setItem(FAMILY_KEY, id);
   setCloud({ family: fam });
-  const linked = localStorage.getItem(LINKED_KEY);
-  const hasLocal = Object.keys(useGame.getState().profiles).length > 0;
-  if (linked !== id) {
-    if (hasLocal) return setCloud({ status: 'link' });
-    linkFamily('replace');
-    return;
-  }
+  const action = deviceDataAction(localStorage.getItem(LINKED_KEY), id, Object.keys(useGame.getState().profiles).length > 0);
+  if (action === 'ask') return setCloud({ status: 'link' });
+  if (action === 'replace') return linkFamily('replace');
   await syncNow();
+}
+
+/** שינויים של משפחה שלא הספיקו לעלות לענן לפני התנתקות – נשמרים במכשיר וחוזרים רק לאותה משפחה */
+const pendingKey = (fid: string) => `${BACKUP_KEY}:${fid}`;
+
+/** שחקנים ותיקים שלא עלו לענן (שונו אחרי הסנכרון האחרון, או מעבר למכסה) */
+function hasUnsynced(fid: string): boolean {
+  const { pushed } = loadMeta(fid);
+  const st = useGame.getState();
+  return localDocs(st).some((d) => pushed[d.id] !== d.updatedAt) || Object.entries(st.deleted).some(([id, ts]) => pushed[id] !== ts);
 }
 
 /**
@@ -382,26 +400,53 @@ export async function linkFamily(mode: 'upload' | 'replace'): Promise<void> {
   if (!fam) return;
   if (mode === 'replace') {
     const st = useGame.getState();
-    if (Object.keys(st.profiles).length) {
+    const prev = localStorage.getItem(LINKED_KEY);
+    // נתונים של חשבון אחר (למשל שהחיבור שלו פג בלי התנתקות): מה שלא עלה לענן שלו נשמר בצד – רק בשבילו
+    if (prev && prev !== fam.id && hasUnsynced(prev)) {
+      try {
+        localStorage.setItem(pendingKey(prev), JSON.stringify({ profiles: st.profiles, portfolios: st.portfolios, settings: st.settings, deleted: st.deleted }));
+      } catch {
+        /* אין מקום */
+      }
+    }
+    // גיבוי רק לשחקנים ששיחקו בלי חשבון. נתונים של חשבון אחר כבר שמורים בענן שלו – לא משאירים אותם כאן
+    if (!prev && Object.keys(st.profiles).length) {
       const backup: GameState = { profiles: st.profiles, portfolios: st.portfolios, settings: st.settings, deleted: st.deleted };
       try {
-        localStorage.setItem(BACKUP_KEY, JSON.stringify({ at: new Date().toISOString(), state: backup }));
+        localStorage.setItem(BACKUP_KEY, JSON.stringify({ at: new Date().toISOString(), state: backup, familyId: fam.id }));
       } catch {
         /* אין מקום – ממשיכים בלי גיבוי */
       }
     }
     applying = true;
     useGame.getState().resetAll();
+    useSession.getState().logout();
     applying = false;
   }
   localStorage.setItem(LINKED_KEY, fam.id);
   saveMeta(fam.id, { pushed: {} });
+  // שינויים של המשפחה הזו שנשארו במכשיר מהתנתקות קודמת – מחזירים (האחרון שעודכן מנצח) ושולחים לענן
+  try {
+    const pending = JSON.parse(localStorage.getItem(pendingKey(fam.id)) || 'null') as GameState | null;
+    if (pending) {
+      const rows: RemoteRow[] = localDocs(pending).map((d) => ({ id: d.id, data: d.data as RemoteRow['data'], deleted: false, updated_at: d.updatedAt }));
+      applying = true;
+      useGame.setState(mergeRemote(useGame.getState(), rows, {}).next);
+      applying = false;
+      localStorage.removeItem(pendingKey(fam.id));
+    }
+  } catch {
+    applying = false;
+  }
   await syncNow();
 }
 
+/** גיבוי השחקנים ששיחקו במכשיר בלי חשבון – מוצג רק לחשבון שהחליף אותם */
 export function localBackup(): { at: string; state: GameState } | undefined {
   try {
-    return JSON.parse(localStorage.getItem(BACKUP_KEY) || 'null') ?? undefined;
+    const b = JSON.parse(localStorage.getItem(BACKUP_KEY) || 'null') as { at: string; state: GameState; familyId?: string } | null;
+    if (!b || (b.familyId && b.familyId !== useCloud.getState().family?.id)) return undefined;
+    return b;
   } catch {
     return undefined;
   }
@@ -418,12 +463,40 @@ export async function signInWithGoogle(): Promise<string | undefined> {
   return undefined;
 }
 
+/**
+ * התנתקות מהמכשיר. כל חשבון Google נפרד: אם הנתונים במכשיר שייכים לחשבון, מסנכרנים פעם אחרונה
+ * ומנקים אותם מהמכשיר – כך מי שיתחבר אחר כך (או ישחק בלי חשבון) מתחיל נקי.
+ * מה שלא הספיק לעלות נשמר בצד וחוזר רק כשאותה משפחה מתחברת שוב למכשיר.
+ */
 export async function cloudSignOut() {
-  // התנתקות מקומית: מוחקים את הטוקן מהמכשיר (בלי לצאת מהאתר)
+  const linked = localStorage.getItem(LINKED_KEY);
+  if (linked) {
+    if (useCloud.getState().family?.id === linked) await syncNow().catch(() => undefined);
+    if (timer) clearTimeout(timer);
+    const st = useGame.getState();
+    if (hasUnsynced(linked)) {
+      try {
+        localStorage.setItem(pendingKey(linked), JSON.stringify({ profiles: st.profiles, portfolios: st.portfolios, settings: st.settings, deleted: st.deleted }));
+      } catch {
+        /* אין מקום */
+      }
+    }
+    applying = true;
+    useGame.getState().resetAll();
+    useSession.getState().logout();
+    applying = false;
+    localStorage.removeItem(LINKED_KEY);
+    localStorage.removeItem('bursa-bekef-guest');
+  }
   for (const k of ['base44_access_token', 'token']) localStorage.removeItem(k);
   client = null;
   localStorage.removeItem(FAMILY_KEY);
-  setCloud({ status: 'signed-out', email: undefined, name: undefined, isAdmin: false, families: [], family: undefined, error: undefined });
+  setCloud({ status: 'signed-out', email: undefined, name: undefined, isAdmin: false, families: [], family: undefined, error: undefined, lastSync: undefined });
+  // מתחילים את האפליקציה מחדש, נקייה (מסך הכניסה)
+  if (linked && typeof location !== 'undefined') {
+    history.replaceState(null, '', location.pathname + location.search);
+    location.reload();
+  }
 }
 
 export async function requestAccess(): Promise<string | undefined> {

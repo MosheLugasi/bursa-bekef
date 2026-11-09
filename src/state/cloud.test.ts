@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { localDocs, mergeRemote, rowsFromRecords, type RemoteRow } from './cloud';
+import { deviceDataAction, localDocs, mergeRemote, rowsFromRecords, type RemoteRow } from './cloud';
 import type { GameState, Profile } from './types';
 
 const prof = (id: string, updatedAt: string, name = id) => ({ id, name, updatedAt }) as unknown as Profile;
@@ -8,6 +8,20 @@ const state = (): GameState => ({
   portfolios: {},
   settings: { familyName: 'x', defaultStartCash: 1, defaultCurrency: 'ILS', feeRate: 0, minFee: 0, updatedAt: '2026-01-01T00:00:00Z' },
   deleted: {}
+});
+
+describe('each Google account is separate on a shared device', () => {
+  it('syncs when the device data already belongs to this family', () => {
+    expect(deviceDataAction('fam-a', 'fam-a', true)).toBe('sync');
+  });
+  it('never offers to merge another account\'s players – loads only this account', () => {
+    expect(deviceDataAction('fam-a', 'fam-b', true)).toBe('replace');
+    expect(deviceDataAction('fam-a', 'fam-b', false)).toBe('replace');
+  });
+  it('asks only about players who played on the device without any account', () => {
+    expect(deviceDataAction(null, 'fam-b', true)).toBe('ask');
+    expect(deviceDataAction(null, 'fam-b', false)).toBe('replace');
+  });
 });
 
 describe('cloud sync merge', () => {

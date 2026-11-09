@@ -82,6 +82,10 @@ function Setup({ onStart, onDone }: { onStart: () => void; onDone: () => void })
           )}
         </div>
       )}
+      {/* באיזה חשבון Google אנחנו + התנתקות (למשל כשכמה הורים משתמשים באותו מכשיר) */}
+      <div className="mt-4">
+        <AccountBar />
+      </div>
     </div>
   );
 }
